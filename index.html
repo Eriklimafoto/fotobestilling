@@ -21,12 +21,9 @@
                         brand: {
                             50: '#f0f7ff',
                             100: '#e0effe',
-                            200: '#bae0fd',
                             500: '#0284c7',
                             600: '#0369a1',
-                            700: '#035483',
-                            800: '#07476f',
-                            900: '#0c3b5e',
+                            700: '#095186',
                         }
                     }
                 }
@@ -34,700 +31,738 @@
         }
     </script>
     <style>
-        .animate-fade-in {
-            animation: fadeIn 0.3s ease-in-out forwards;
+        .custom-checkbox:checked + div {
+            border-color: #0284c7;
+            background-color: #f0f7ff;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-8px); }
-            to { opacity: 1; transform: translateY(0); }
+        .custom-checkbox:checked + div .check-icon {
+            display: block;
         }
-        input:focus, select:focus, textarea:focus {
-            outline: none;
+        /* Custom styling to printable area */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #summaryModalContent, #summaryModalContent * {
+                visibility: visible;
+            }
+            #summaryModalContent {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            .no-print {
+                display: none !important;
+            }
         }
     </style>
 </head>
-<body class="bg-slate-50 font-sans text-slate-800 antialiased min-h-screen pb-12">
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen pb-12">
 
-    <header class="bg-brand-900 text-white py-8 shadow-md">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+    <!-- Top Navigation / Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="p-3 bg-brand-600 rounded-2xl shadow-inner">
-                    <i data-lucide="camera" class="w-8 h-8 text-white"></i>
+                <div class="bg-brand-500 text-white p-2.5 rounded-xl shadow-md shadow-brand-500/20">
+                    <i data-lucide="camera" class="w-6 h-6"></i>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight">Skole- & Gruppe-fotografering</h1>
-                    <p class="text-brand-200 text-sm">Bestillingsskjema for fotoforespørsel og prosjektering</p>
+                    <h1 class="text-xl font-bold text-slate-900 leading-tight">Lima Foto</h1>
+                    <p class="text-xs text-slate-500 font-medium">Skole- og Gruppefotografering Bestillingsskjema</p>
                 </div>
             </div>
-            <div class="text-right hidden sm:block">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-brand-800 text-brand-100 border border-brand-700">
-                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i> Enkel & Trygg Bestilling
-                </span>
-            </div>
+            <span class="text-xs bg-brand-50 text-brand-700 font-semibold px-3 py-1 rounded-full border border-brand-100 hidden sm:inline-block">
+                Sikker innsending
+            </span>
         </div>
     </header>
 
-    <main class="max-w-4xl mx-auto px-4 sm:px-6 -mt-4">
-        <form id="bookingForm" class="space-y-8" onsubmit="handleFormSubmit(event)" novalidate>
+    <!-- Main Container -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-8">
+        
+        <!-- Form Start -->
+        <form id="orderForm" action="https://formsubmit.co/erik.petermann@limafoto.no" method="POST" class="space-y-8">
+            
+            <!-- Hidden configuration fields for FormSubmit -->
+            <input type="hidden" name="_subject" id="emailSubject" value="Ny Fotobestilling">
+            <input type="hidden" name="_template" value="table">
+            <input type="hidden" name="_captcha" value="false">
 
-            <!-- Step 1: Organisasjons- / Kundetype -->
-            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 transition-all duration-200">
-                <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
-                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold text-sm">1</div>
-                    <div>
-                        <h2 class="text-lg font-semibold text-slate-900">Type Organisasjon / Kunde <span class="text-rose-500">*</span></h2>
-                        <p class="text-xs text-slate-500">Velg én eller flere kategorier det gjelder for denne bestillingen</p>
-                    </div>
+            <!-- Hidden input fields to capture compiled comma-separated lists -->
+            <input type="hidden" name="selectedClasses" id="hidden_selectedClasses" value="">
+            <input type="hidden" name="groupClassesDetails" id="hidden_groupClassesDetails" value="">
+            <input type="hidden" name="portraitClassesDetails" id="hidden_portraitClassesDetails" value="">
+
+            <!-- SECTION 1: Skole / Organisasjon Type (Mandatory 1 or more) -->
+            <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80">
+                <div class="flex items-center gap-2 mb-2 text-brand-600 font-semibold text-sm tracking-wide uppercase">
+                    <i data-lucide="building-2" class="w-4 h-4"></i>
+                    Steg 1
                 </div>
+                <h2 class="text-xl font-bold text-slate-900 mb-1">Hva slags type organisasjon gjelder bestillingen?</h2>
+                <p class="text-sm text-slate-500 mb-6">Du må velge minst én type for å fortsette (flere kan velges om nødvendig).</p>
 
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" id="orgTypeContainer">
-                    <label class="group relative flex items-center p-3.5 rounded-xl border border-slate-200 bg-white hover:border-brand-500 hover:bg-brand-50/30 cursor-pointer transition-all">
-                        <input type="checkbox" name="orgType" value="barneskole" onchange="toggleOrgInputs()" class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
-                        <span class="ml-3 font-medium text-sm text-slate-700 group-hover:text-brand-900 flex items-center gap-2">
-                            <i data-lucide="graduation-cap" class="w-4 h-4 text-slate-400 group-hover:text-brand-600"></i> Barneskole
-                        </span>
-                    </label>
-
-                    <label class="group relative flex items-center p-3.5 rounded-xl border border-slate-200 bg-white hover:border-brand-500 hover:bg-brand-50/30 cursor-pointer transition-all">
-                        <input type="checkbox" name="orgType" value="ungdomsskole" onchange="toggleOrgInputs()" class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
-                        <span class="ml-3 font-medium text-sm text-slate-700 group-hover:text-brand-900 flex items-center gap-2">
-                            <i data-lucide="book-open" class="w-4 h-4 text-slate-400 group-hover:text-brand-600"></i> Ungdomsskole
-                        </span>
-                    </label>
-
-                    <label class="group relative flex items-center p-3.5 rounded-xl border border-slate-200 bg-white hover:border-brand-500 hover:bg-brand-50/30 cursor-pointer transition-all">
-                        <input type="checkbox" name="orgType" value="vgs" onchange="toggleOrgInputs()" class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
-                        <span class="ml-3 font-medium text-sm text-slate-700 group-hover:text-brand-900 flex items-center gap-2">
-                            <i data-lucide="award" class="w-4 h-4 text-slate-400 group-hover:text-brand-600"></i> VGS
-                        </span>
-                    </label>
-
-                    <label class="group relative flex items-center p-3.5 rounded-xl border border-slate-200 bg-white hover:border-brand-500 hover:bg-brand-50/30 cursor-pointer transition-all">
-                        <input type="checkbox" name="orgType" value="barnehage" onchange="toggleOrgInputs()" class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
-                        <span class="ml-3 font-medium text-sm text-slate-700 group-hover:text-brand-900 flex items-center gap-2">
-                            <i data-lucide="smile" class="w-4 h-4 text-slate-400 group-hover:text-brand-600"></i> Barnehage
-                        </span>
-                    </label>
-
-                    <label class="group relative flex items-center p-3.5 rounded-xl border border-slate-200 bg-white hover:border-brand-500 hover:bg-brand-50/30 cursor-pointer transition-all">
-                        <input type="checkbox" name="orgType" value="idrettslag" onchange="toggleOrgInputs()" class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
-                        <span class="ml-3 font-medium text-sm text-slate-700 group-hover:text-brand-900 flex items-center gap-2">
-                            <i data-lucide="trophy" class="w-4 h-4 text-slate-400 group-hover:text-brand-600"></i> Idrettslag
-                        </span>
-                    </label>
-
-                    <label class="group relative flex items-center p-3.5 rounded-xl border border-slate-200 bg-white hover:border-brand-500 hover:bg-brand-50/30 cursor-pointer transition-all">
-                        <input type="checkbox" name="orgType" value="bedrift" onchange="toggleOrgInputs()" class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
-                        <span class="ml-3 font-medium text-sm text-slate-700 group-hover:text-brand-900 flex items-center gap-2">
-                            <i data-lucide="building" class="w-4 h-4 text-slate-400 group-hover:text-brand-600"></i> Bedrift
-                        </span>
-                    </label>
-                </div>
-                <p id="orgTypeErr" class="text-xs text-rose-500 font-medium mt-2 hidden">Vennligst velg minst én organisasjonstype.</p>
-            </section>
-
-            <section id="dynamicClassesSection" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 hidden animate-fade-in">
-                <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
-                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold text-sm">2</div>
-                    <div>
-                        <h2 class="text-lg font-semibold text-slate-900">Klasser, Trinn og Grupperinger</h2>
-                        <p class="text-xs text-slate-500">Velg enten hele trinn (f.eks. "1. trinn") og/eller spesifikke klasser (f.eks. "1A")</p>
-                    </div>
-                </div>
-
-                <div class="space-y-6">
-
-                    <!-- Barneskole trinn 1-7 -->
-                    <div id="barneskoleBlock" class="hidden p-4 rounded-xl bg-slate-50 border border-slate-200">
-                        <h3 class="text-sm font-semibold text-slate-800 mb-2 flex items-center gap-2">
-                            <i data-lucide="graduation-cap" class="w-4 h-4 text-brand-600"></i> Barneskole (1.–7. Trinn)
-                        </h3>
-                        <p class="text-xs text-slate-500 mb-3">Velg «[X]. trinn» for hele trinn, eller enkeltbokstaver:</p>
-                        <div class="space-y-2 text-xs" id="barneskoleContainer">
-                            <!-- Dynamisk bygget med JS -->
-                        </div>
-                    </div>
-
-                    <!-- Ungdomsskole trinn 8-10 -->
-                    <div id="ungdomsskoleBlock" class="hidden p-4 rounded-xl bg-slate-50 border border-slate-200">
-                        <h3 class="text-sm font-semibold text-slate-800 mb-2 flex items-center gap-2">
-                            <i data-lucide="book-open" class="w-4 h-4 text-brand-600"></i> Ungdomsskole (8.–10. Trinn)
-                        </h3>
-                        <p class="text-xs text-slate-500 mb-3">Velg trinn og klasser:</p>
-                        <div class="space-y-2 text-xs" id="ungdomsskoleContainer">
-                            <!-- Dynamisk bygget med JS -->
-                        </div>
-                    </div>
-
-                    <!-- VGS Vg1 - Vg3 -->
-                    <div id="vgsBlock" class="hidden p-4 rounded-xl bg-slate-50 border border-slate-200">
-                        <h3 class="text-sm font-semibold text-slate-800 mb-2 flex items-center gap-2">
-                            <i data-lucide="award" class="w-4 h-4 text-brand-600"></i> Videregående Skole (Vg1 – Vg3)
-                        </h3>
-                        <p class="text-xs text-slate-500 mb-3">Velg VGS trinn og klasser:</p>
-                        <div class="space-y-2 text-xs" id="vgsContainer">
-                            <!-- Dynamisk bygget med JS -->
-                        </div>
-                    </div>
-
-                    <!-- Fritekstfelt for Barnehage, Idrettslag, Bedrift -->
-                    <div id="customGroupBlock" class="hidden p-4 rounded-xl bg-brand-50/50 border border-brand-100 space-y-3">
-                        <h3 class="text-sm font-semibold text-brand-900 flex items-center gap-2">
-                            <i data-lucide="users" class="w-4 h-4 text-brand-600"></i> Avdelings- & Gruppe-spesifisering
-                        </h3>
-                        <label for="customGroupText" class="block text-xs font-medium text-slate-700">Spesifiser gruppenavn, avdelinger eller lag (f.eks. "Solsikka & Blåklokka", "G2012", "Salg & Ledelse"):</label>
-                        <textarea id="customGroupText" name="customGroupText" rows="2" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 bg-white" placeholder="Skriv inn avdelinger/grupper her..."></textarea>
-                    </div>
-
-                </div>
-            </section>
-
-            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
-                <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
-                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold text-sm">3</div>
-                    <div>
-                        <h2 class="text-lg font-semibold text-slate-900">Fotograferingsdetaljer & Datoer</h2>
-                        <p class="text-xs text-slate-500">Praktisk informasjon, datointervaller og splitt på datoer</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" id="orgTypesContainer">
                     
-                    <!-- Kunde/Skolenavn -->
-                    <div class="sm:col-span-2">
-                        <label for="orgName" class="block text-sm font-medium text-slate-700 mb-1">Navn på Skole / Organisasjon <span class="text-rose-500">*</span></label>
-                        <input type="text" id="orgName" name="orgName" required class="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500" placeholder="f.eks. Lillestrøm VGS eller Solbakken Barnehage">
-                        <p class="text-xs text-rose-500 font-medium mt-1 hidden" id="orgNameErr">Vennligst oppgi navn på organisasjonen/skolen.</p>
+                    <!-- Barneskole -->
+                    <label class="relative cursor-pointer select-none">
+                        <input type="checkbox" name="orgType" value="barneskole" class="custom-checkbox sr-only" onchange="handleOrgTypeChange()">
+                        <div class="p-4 rounded-xl border-2 border-slate-200 hover:border-slate-300 transition-all flex flex-col items-center text-center gap-2 h-full">
+                            <i data-lucide="school" class="w-6 h-6 text-slate-600"></i>
+                            <span class="text-sm font-semibold text-slate-700">Barneskole</span>
+                            <i data-lucide="check-circle-2" class="check-icon w-5 h-5 text-brand-500 absolute top-2 right-2 hidden"></i>
+                        </div>
+                    </label>
+
+                    <!-- Ungdomskole -->
+                    <label class="relative cursor-pointer select-none">
+                        <input type="checkbox" name="orgType" value="ungdomskole" class="custom-checkbox sr-only" onchange="handleOrgTypeChange()">
+                        <div class="p-4 rounded-xl border-2 border-slate-200 hover:border-slate-300 transition-all flex flex-col items-center text-center gap-2 h-full">
+                            <i data-lucide="graduation-cap" class="w-6 h-6 text-slate-600"></i>
+                            <span class="text-sm font-semibold text-slate-700">Ungdomsskole</span>
+                            <i data-lucide="check-circle-2" class="check-icon w-5 h-5 text-brand-500 absolute top-2 right-2 hidden"></i>
+                        </div>
+                    </label>
+
+                    <!-- VGS -->
+                    <label class="relative cursor-pointer select-none">
+                        <input type="checkbox" name="orgType" value="vgs" class="custom-checkbox sr-only" onchange="handleOrgTypeChange()">
+                        <div class="p-4 rounded-xl border-2 border-slate-200 hover:border-slate-300 transition-all flex flex-col items-center text-center gap-2 h-full">
+                            <i data-lucide="book-open" class="w-6 h-6 text-slate-600"></i>
+                            <span class="text-sm font-semibold text-slate-700">VGS</span>
+                            <i data-lucide="check-circle-2" class="check-icon w-5 h-5 text-brand-500 absolute top-2 right-2 hidden"></i>
+                        </div>
+                    </label>
+
+                    <!-- Barnehage -->
+                    <label class="relative cursor-pointer select-none">
+                        <input type="checkbox" name="orgType" value="barnehage" class="custom-checkbox sr-only" onchange="handleOrgTypeChange()">
+                        <div class="p-4 rounded-xl border-2 border-slate-200 hover:border-slate-300 transition-all flex flex-col items-center text-center gap-2 h-full">
+                            <i data-lucide="baby" class="w-6 h-6 text-slate-600"></i>
+                            <span class="text-sm font-semibold text-slate-700">Barnehage</span>
+                            <i data-lucide="check-circle-2" class="check-icon w-5 h-5 text-brand-500 absolute top-2 right-2 hidden"></i>
+                        </div>
+                    </label>
+
+                    <!-- Idrettslag -->
+                    <label class="relative cursor-pointer select-none">
+                        <input type="checkbox" name="orgType" value="idrettslag" class="custom-checkbox sr-only" onchange="handleOrgTypeChange()">
+                        <div class="p-4 rounded-xl border-2 border-slate-200 hover:border-slate-300 transition-all flex flex-col items-center text-center gap-2 h-full">
+                            <i data-lucide="trophy" class="w-6 h-6 text-slate-600"></i>
+                            <span class="text-sm font-semibold text-slate-700">Idrettslag</span>
+                            <i data-lucide="check-circle-2" class="check-icon w-5 h-5 text-brand-500 absolute top-2 right-2 hidden"></i>
+                        </div>
+                    </label>
+
+                    <!-- Bedrift -->
+                    <label class="relative cursor-pointer select-none">
+                        <input type="checkbox" name="orgType" value="bedrift" class="custom-checkbox sr-only" onchange="handleOrgTypeChange()">
+                        <div class="p-4 rounded-xl border-2 border-slate-200 hover:border-slate-300 transition-all flex flex-col items-center text-center gap-2 h-full">
+                            <i data-lucide="briefcase" class="w-6 h-6 text-slate-600"></i>
+                            <span class="text-sm font-semibold text-slate-700">Bedrift</span>
+                            <i data-lucide="check-circle-2" class="check-icon w-5 h-5 text-brand-500 absolute top-2 right-2 hidden"></i>
+                        </div>
+                    </label>
+
+                </div>
+                <p id="orgTypeError" class="text-xs text-rose-500 mt-2 font-medium hidden flex items-center gap-1">
+                    <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Du må velge minst én organisasjonstype.
+                </p>
+            </section>
+
+
+            <!-- SECTION 2: Generell Informasjon (Skolenavn, Dato, Lokasjon) -->
+            <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80 space-y-6">
+                <div class="flex items-center gap-2 text-brand-600 font-semibold text-sm tracking-wide uppercase">
+                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                    Steg 2
+                </div>
+                <h2 class="text-xl font-bold text-slate-900 border-b border-slate-100 pb-3">Dato og Lokasjon</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Navn på skole/bedrift -->
+                    <div>
+                        <label for="orgName" class="block text-sm font-medium text-slate-700 mb-1">Navn på Skole / Organisasjon / Bedrift <span class="text-rose-500">*</span></label>
+                        <input type="text" id="orgName" name="orgName" required placeholder="f.eks. Solvang Barneskole" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-sm">
                     </div>
 
-                    <!-- Fotolokale / Adresse -->
-                    <div class="sm:col-span-2">
-                        <label for="photoLocation" class="block text-sm font-medium text-slate-700 mb-1">Fotolokale / Adresse <span class="text-rose-500">*</span></label>
-                        <input type="text" id="photoLocation" name="photoLocation" required class="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500" placeholder="f.eks. Gymsalen, Storgata 10 (eller Ute, Spesirom etc.)">
-                        <p class="text-xs text-rose-500 font-medium mt-1 hidden" id="photoLocationErr">Vennligst oppgi lokasjon eller adresse.</p>
+                    <!-- Fotolokale -->
+                    <div>
+                        <label for="photoLocation" class="block text-sm font-medium text-slate-700 mb-1">Fotolokale / Sted på skolen <span class="text-rose-500">*</span></label>
+                        <input type="text" id="photoLocation" name="photoLocation" required placeholder="f.eks. Gymsalen, Aulaen eller Ute" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-sm">
                     </div>
+                </div>
 
-                    <!-- DATO-SEKSJON -->
-                    <div class="sm:col-span-2 bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
-                        <h3 class="text-sm font-semibold text-slate-800 flex items-center gap-2">
-                            <i data-lucide="calendar" class="w-4 h-4 text-brand-600"></i> Ønsket dato for fotografering
-                        </h3>
+                <!-- Datoer & Splitt-dato funksjonalitet -->
+                <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-4">
+                    <h3 class="text-sm font-semibold text-slate-800 flex items-center gap-2">
+                        <i data-lucide="clock" class="w-4 h-4 text-brand-500"></i> Ønsket dato for fotografering
+                    </h3>
 
-                        <!-- Periode 1 (Fra / Til) -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label for="photoDateFrom" class="block text-xs font-medium text-slate-700 mb-1">Fra dato <span class="text-rose-500">*</span></label>
-                                <input type="date" id="photoDateFrom" name="photoDateFrom" required class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 bg-white">
-                                <p class="text-xs text-rose-500 font-medium mt-1 hidden" id="photoDateFromErr">Velg en gyldig startdato.</p>
-                            </div>
-                            <div>
-                                <label for="photoDateTo" class="block text-xs font-medium text-slate-700 mb-1">Til dato <span class="text-slate-400 font-normal">(hvis over flere dager)</span></label>
-                                <input type="date" id="photoDateTo" name="photoDateTo" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 bg-white">
-                            </div>
+                    <!-- Periode 1: Fra og Til dato -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="photoDateFrom" class="block text-xs font-medium text-slate-600 mb-1">Fra dato <span class="text-rose-500">*</span></label>
+                            <input type="date" id="photoDateFrom" name="photoDateFrom" required class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none text-sm bg-white">
                         </div>
-
-                        <!-- Checkbox for splitt / oppdelt fotografering -->
-                        <div class="pt-2 border-t border-slate-200">
-                            <label class="flex items-center gap-2.5 cursor-pointer">
-                                <input type="checkbox" id="chkSplitDate" name="chkSplitDate" value="Ja" onchange="toggleSplitDateFields()" class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
-                                <span class="text-xs font-semibold text-slate-800">Oppdelt fotografering / Splitt på datoer (fler-delings fotografering)</span>
-                            </label>
-                            <p class="text-xs text-slate-500 ml-6">Huk av her dersom foto skal deles opp i to ulike tidsperioder/datoer.</p>
-                        </div>
-
-                        <!-- Periode 2 (Vises kun ved splitt) -->
-                        <div id="splitDateContainer" class="hidden animate-fade-in p-3 bg-brand-50/60 border border-brand-200 rounded-lg space-y-3">
-                            <p class="text-xs font-semibold text-brand-900">Periode / Del 2 (Oppdelt dato):</p>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label for="splitDateFrom" class="block text-xs font-medium text-slate-700 mb-1">Del 2: Fra dato</label>
-                                    <input type="date" id="splitDateFrom" name="splitDateFrom" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 bg-white">
-                                </div>
-                                <div>
-                                    <label for="splitDateTo" class="block text-xs font-medium text-slate-700 mb-1">Del 2: Til dato</label>
-                                    <input type="date" id="splitDateTo" name="splitDateTo" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 bg-white">
-                                </div>
-                            </div>
+                        <div>
+                            <label for="photoDateTo" class="block text-xs font-medium text-slate-600 mb-1">Til dato (om det er over flere dager)</label>
+                            <input type="date" id="photoDateTo" name="photoDateTo" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none text-sm bg-white">
                         </div>
                     </div>
 
-                    <!-- Antall klasser/grupper -->
+                    <!-- Splitt dato avkryssing -->
+                    <div class="pt-2 border-t border-slate-200">
+                        <label class="inline-flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="chkSplitDate" name="chkSplitDate" value="Ja" onchange="toggleSplitDate()" class="w-4 h-4 text-brand-500 rounded border-slate-300 focus:ring-brand-500">
+                            <span class="text-sm font-medium text-slate-700">Oppdelt fotografering / Splitt på datoer (to fotodager med opphold imellom)</span>
+                        </label>
+                    </div>
+
+                    <!-- Periode 2 (Vises kun om splitt er huket av) -->
+                    <div id="splitDateContainer" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-200/60 bg-white p-3 rounded-lg border border-slate-200">
+                        <div>
+                            <label for="splitDateFrom" class="block text-xs font-medium text-slate-600 mb-1">Del 2: Fra dato</label>
+                            <input type="date" id="splitDateFrom" name="splitDateFrom" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none text-sm">
+                        </div>
+                        <div>
+                            <label for="splitDateTo" class="block text-xs font-medium text-slate-600 mb-1">Del 2: Til dato</label>
+                            <input type="date" id="splitDateTo" name="splitDateTo" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none text-sm">
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Tall: Klasser og elever -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
                         <label for="classCount" class="block text-sm font-medium text-slate-700 mb-1">Antall klasser / grupper totalt <span class="text-rose-500">*</span></label>
-                        <input type="number" min="1" id="classCount" name="classCount" required class="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500" placeholder="f.eks. 12">
-                        <p class="text-xs text-rose-500 font-medium mt-1 hidden" id="classCountErr">Oppgi et gyldig antall (minst 1).</p>
+                        <input type="number" id="classCount" name="classCount" min="1" required placeholder="f.eks. 14" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none text-sm">
                     </div>
-
-                    <!-- Antall elever / deltakere -->
                     <div>
                         <label for="studentCount" class="block text-sm font-medium text-slate-700 mb-1">Antall elever / deltakere totalt <span class="text-rose-500">*</span></label>
-                        <input type="number" min="1" id="studentCount" name="studentCount" required class="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500" placeholder="f.eks. 280">
-                        <p class="text-xs text-rose-500 font-medium mt-1 hidden" id="studentCountErr">Oppgi et gyldig antall deltakere.</p>
+                        <input type="number" id="studentCount" name="studentCount" min="1" required placeholder="f.eks. 320" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none text-sm">
                     </div>
+                </div>
 
-                    <!-- Leirskole informasjon -->
-                    <div class="sm:col-span-2">
-                        <label for="campInfo" class="block text-sm font-medium text-slate-700 mb-1">Informasjon om leirskole eller fraværsperioder</label>
-                        <input type="text" id="campInfo" name="campInfo" class="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500" placeholder="f.eks. 7. trinn er på leirskole i uke 38, unngå tirsdager...">
-                        <p class="text-xs text-slate-400 mt-1">Sjekk om noen trinn/grupper er bortreist rundt fotodato.</p>
-                    </div>
+            </section>
 
+            <!-- SECTION 3: Dynamisk Klassevalg for Barneskole, Ungdomsskole, VGS -->
+            <section id="dynamicClassesSection" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80 space-y-6 hidden">
+                <div class="flex items-center gap-2 text-brand-600 font-semibold text-sm tracking-wide uppercase">
+                    <i data-lucide="list-checks" class="w-4 h-4"></i>
+                    Steg 3
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900">Velg klasser / trinn som skal fotograferes</h2>
+                    <p class="text-sm text-slate-500">Kryss av for alle klassene eller hele trinn som vil være relevante for fotograferingen.</p>
+                </div>
+
+                <!-- Barneskole Klasser (1-7) -->
+                <div id="containerBarneskole" class="hidden space-y-4 border-t border-slate-100 pt-4">
+                    <h3 class="text-md font-bold text-slate-800 flex items-center gap-2">
+                        <i data-lucide="school" class="w-4 h-4 text-brand-500"></i> Barneskole (1. til 7. trinn)
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3" id="barneskoleCheckboxes"></div>
+                </div>
+
+                <!-- Ungdomsskole Klasser (8-10) -->
+                <div id="containerUngdomskole" class="hidden space-y-4 border-t border-slate-100 pt-4">
+                    <h3 class="text-md font-bold text-slate-800 flex items-center gap-2">
+                        <i data-lucide="graduation-cap" class="w-4 h-4 text-brand-500"></i> Ungdomsskole (8. til 10. trinn)
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3" id="ungdomskoleCheckboxes"></div>
+                </div>
+
+                <!-- VGS Klasser (Vg1 - Vg3) -->
+                <div id="containerVGS" class="hidden space-y-4 border-t border-slate-100 pt-4">
+                    <h3 class="text-md font-bold text-slate-800 flex items-center gap-2">
+                        <i data-lucide="book-open" class="w-4 h-4 text-brand-500"></i> Videregående skole (Vg1 til Vg3)
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3" id="vgsCheckboxes"></div>
+                </div>
+
+                <!-- Fritekst for Barnehage, Idrettslag, Bedrift -->
+                <div id="containerCustomGroup" class="hidden border-t border-slate-100 pt-4">
+                    <label for="customGroupText" class="block text-sm font-bold text-slate-800 mb-1">Spesifiser avdelinger, lag eller grupper</label>
+                    <p class="text-xs text-slate-500 mb-2">Skriv inn avdelingsnavn, årsklasser eller lagnavn (f.eks: "Maurtua og Ekornkroken" eller "G2012, J2014").</p>
+                    <textarea id="customGroupText" name="customGroupText" rows="3" placeholder="Beskriv avdelingene eller gruppene her..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none text-sm"></textarea>
                 </div>
             </section>
 
-            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
-                <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
-                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold text-sm">4</div>
-                    <div>
-                        <h2 class="text-lg font-semibold text-slate-900">Valg av Fotopakker og Bildetyper <span class="text-rose-500">*</span></h2>
-                        <p class="text-xs text-slate-500">Kryss av for de fototjenestene dere ønsker utført</p>
+
+            <!-- SECTION 4: Fotopakker og Spesiell info (Rad 10-17) -->
+            <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80 space-y-6">
+                <div class="flex items-center gap-2 text-brand-600 font-semibold text-sm tracking-wide uppercase">
+                    <i data-lucide="layers" class="w-4 h-4"></i>
+                    Steg 4
+                </div>
+                <h2 class="text-xl font-bold text-slate-900 border-b border-slate-100 pb-3">Valg av Fotopakker & Produkter</h2>
+
+                <!-- 1. Hva skal tas av bilder? -->
+                <div class="space-y-3">
+                    <label class="block text-sm font-semibold text-slate-800">Hvilke bildetyper ønsker dere å bestille? <span class="text-rose-500">*</span></label>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <label class="flex items-center p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition">
+                            <input type="checkbox" name="photoPackage" value="Trinnbilde" onchange="togglePackageOptions()" class="w-4 h-4 text-brand-500 rounded border-slate-300 focus:ring-brand-500">
+                            <span class="ml-2.5 text-sm font-medium text-slate-700">Trinnbilde</span>
+                        </label>
+                        <label class="flex items-center p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition">
+                            <input type="checkbox" name="photoPackage" value="Gruppebilder" id="chkGruppebilder" onchange="togglePackageOptions()" class="w-4 h-4 text-brand-500 rounded border-slate-300 focus:ring-brand-500">
+                            <span class="ml-2.5 text-sm font-medium text-slate-700">Gruppebilder (Klassevis)</span>
+                        </label>
+                        <label class="flex items-center p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition">
+                            <input type="checkbox" name="photoPackage" value="Portrettbilder" id="chkPortrettbilder" onchange="togglePackageOptions()" class="w-4 h-4 text-brand-500 rounded border-slate-300 focus:ring-brand-500">
+                            <span class="ml-2.5 text-sm font-medium text-slate-700">Portrettbilder</span>
+                        </label>
                     </div>
                 </div>
 
-                <div class="space-y-4">
+                <!-- Dynamisk detaljering dersom Gruppebilder eller Portrettbilder er valgt -->
+                <div id="packageDetailsContainer" class="hidden space-y-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
                     
-                    <!-- Trinnbilde -->
-                    <label class="flex items-start p-4 rounded-xl border border-slate-200 hover:border-brand-300 hover:bg-slate-50 cursor-pointer transition-all">
-                        <input type="checkbox" name="photoPackage" value="Trinnbilde" class="mt-1 w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
-                        <div class="ml-3">
-                            <span class="block font-semibold text-sm text-slate-800">Trinnbilde</span>
-                            <span class="block text-xs text-slate-500">Fellesbilde for hele klassetrinn samlet.</span>
+                    <!-- Gruppebilder spesifisering -->
+                    <div id="groupDetailsSub" class="hidden space-y-2">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Hvilke klasser skal ha gruppebilder?</label>
+                        <div class="flex gap-4">
+                            <label class="inline-flex items-center gap-1.5 text-sm">
+                                <input type="radio" name="groupClassesDetailsRadio" value="alle" checked onchange="toggleSubClassList('group', false)" class="text-brand-500"> Alle valgte klasser
+                            </label>
+                            <label class="inline-flex items-center gap-1.5 text-sm">
+                                <input type="radio" name="groupClassesDetailsRadio" value="utvalgte" onchange="toggleSubClassList('group', true)" class="text-brand-500"> Kun utvalgte klasser
+                            </label>
                         </div>
-                    </label>
-
-                    <!-- Gruppebilder med spesifisering -->
-                    <div class="border border-slate-200 rounded-xl p-4 transition-all">
-                        <label class="flex items-start cursor-pointer">
-                            <input type="checkbox" id="chkGroupPhoto" name="photoPackage" value="Gruppebilder" onchange="togglePackageSubOptions()" class="mt-1 w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
-                            <div class="ml-3">
-                                <span class="block font-semibold text-sm text-slate-800">Gruppebilder</span>
-                                <span class="block text-xs text-slate-500">Tradisjonelle klasse- / gruppebilder.</span>
-                            </div>
-                        </label>
-                        <div id="groupPhotoSub" class="mt-3 pl-7 hidden animate-fade-in">
-                            <label for="groupClassesDetails" class="block text-xs font-medium text-slate-700 mb-1">Hvilke klasser/grupper gjelder dette for?</label>
-                            <input type="text" id="groupClassesDetails" name="groupClassesDetails" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500" placeholder="f.eks. Alle klasser (1A-7D) eller spesifiser...">
-                        </div>
+                        <div id="groupSubClassList" class="hidden grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2"></div>
                     </div>
 
-                    <!-- Portrettbilder med spesifisering -->
-                    <div class="border border-slate-200 rounded-xl p-4 transition-all">
-                        <label class="flex items-start cursor-pointer">
-                            <input type="checkbox" id="chkPortraitPhoto" name="photoPackage" value="Portrettbilder" onchange="togglePackageSubOptions()" class="mt-1 w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
-                            <div class="ml-3">
-                                <span class="block font-semibold text-sm text-slate-800">Portrettbilder (Enkeltportretter)</span>
-                                <span class="block text-xs text-slate-500">Individuelle portretter av hver elev/deltaker.</span>
-                            </div>
-                        </label>
-                        <div id="portraitPhotoSub" class="mt-3 pl-7 hidden animate-fade-in">
-                            <label for="portraitClassesDetails" class="block text-xs font-medium text-slate-700 mb-1">Hvilke klasser/grupper ønsker portrett?</label>
-                            <input type="text" id="portraitClassesDetails" name="portraitClassesDetails" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500" placeholder="f.eks. Alle klasser eller kun avgangs-trinn...">
+                    <!-- Portrett spesifisering -->
+                    <div id="portraitDetailsSub" class="hidden space-y-2 pt-2 border-t border-slate-200">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Hvilke klasser skal ha portrettbilder?</label>
+                        <div class="flex gap-4">
+                            <label class="inline-flex items-center gap-1.5 text-sm">
+                                <input type="radio" name="portraitClassesDetailsRadio" value="alle" checked onchange="toggleSubClassList('portrait', false)" class="text-brand-500"> Alle valgte klasser
+                            </label>
+                            <label class="inline-flex items-center gap-1.5 text-sm">
+                                <input type="radio" name="portraitClassesDetailsRadio" value="utvalgte" onchange="toggleSubClassList('portrait', true)" class="text-brand-500"> Kun utvalgte klasser
+                            </label>
                         </div>
+                        <div id="portraitSubClassList" class="hidden grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2"></div>
                     </div>
 
-                    <!-- Tillegg / Andre valg -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                </div>
+
+                <!-- Ekstra Tjenester (Søskenfoto, Personalbilde osv.) -->
+                <div class="pt-4 border-t border-slate-100 space-y-4">
+                    <h3 class="text-sm font-bold text-slate-800">Tilleggsfotografering & Personal</h3>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         
                         <!-- Søskenfoto -->
-                        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
-                            <span class="block text-xs font-semibold text-slate-800 mb-2">Søskenfoto?</span>
-                            <div class="flex items-center gap-4 text-xs">
-                                <label class="flex items-center gap-1.5 cursor-pointer">
-                                    <input type="radio" name="siblingPhoto" value="Ja" class="text-brand-600 focus:ring-brand-500"> Ja
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                            <span class="block text-xs font-semibold text-slate-600 mb-2">Søskenfoto?</span>
+                            <div class="flex gap-3">
+                                <label class="inline-flex items-center text-sm">
+                                    <input type="radio" name="siblingPhoto" value="Ja" class="text-brand-500"> Ja
                                 </label>
-                                <label class="flex items-center gap-1.5 cursor-pointer">
-                                    <input type="radio" name="siblingPhoto" value="Nei" checked class="text-brand-600 focus:ring-brand-500"> Nei
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Personalbilde -->
-                        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
-                            <span class="block text-xs font-semibold text-slate-800 mb-2">Personalbilde (Gruppe)?</span>
-                            <div class="flex items-center gap-4 text-xs">
-                                <label class="flex items-center gap-1.5 cursor-pointer">
-                                    <input type="radio" name="staffPhoto" value="Ja" class="text-brand-600 focus:ring-brand-500"> Ja
-                                </label>
-                                <label class="flex items-center gap-1.5 cursor-pointer">
-                                    <input type="radio" name="staffPhoto" value="Nei" checked class="text-brand-600 focus:ring-brand-500"> Nei
+                                <label class="inline-flex items-center text-sm">
+                                    <input type="radio" name="siblingPhoto" value="Nei" checked class="text-brand-500"> Nei
                                 </label>
                             </div>
                         </div>
 
-                        <!-- Personalbilde og portrett -->
-                        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
-                            <span class="block text-xs font-semibold text-slate-800 mb-2">Personal-portretter?</span>
-                            <div class="flex items-center gap-4 text-xs">
-                                <label class="flex items-center gap-1.5 cursor-pointer">
-                                    <input type="radio" name="staffPortrait" value="Ja" class="text-brand-600 focus:ring-brand-500"> Ja
+                        <!-- Personalbilde Gruppe -->
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                            <span class="block text-xs font-semibold text-slate-600 mb-2">Personalbilde (Gruppe)?</span>
+                            <div class="flex gap-3">
+                                <label class="inline-flex items-center text-sm">
+                                    <input type="radio" name="staffPhoto" value="Ja" class="text-brand-500"> Ja
                                 </label>
-                                <label class="flex items-center gap-1.5 cursor-pointer">
-                                    <input type="radio" name="staffPortrait" value="Nei" checked class="text-brand-600 focus:ring-brand-500"> Nei
+                                <label class="inline-flex items-center text-sm">
+                                    <input type="radio" name="staffPhoto" value="Nei" checked class="text-brand-500"> Nei
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Personalbilde Portrett -->
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                            <span class="block text-xs font-semibold text-slate-600 mb-2">Personal Portrettbilde?</span>
+                            <div class="flex gap-3">
+                                <label class="inline-flex items-center text-sm">
+                                    <input type="radio" name="staffPortrait" value="Ja" class="text-brand-500"> Ja
+                                </label>
+                                <label class="inline-flex items-center text-sm">
+                                    <input type="radio" name="staffPortrait" value="Nei" checked class="text-brand-500"> Nei
                                 </label>
                             </div>
                         </div>
 
                     </div>
-
                 </div>
-                <p id="packageErr" class="text-xs text-rose-500 font-medium mt-3 hidden">Vennligst velg minst én bildetype eller pakke.</p>
+
+                <!-- Leirskole / Fravær (Rad 16) -->
+                <div class="pt-4 border-t border-slate-100">
+                    <label for="campInfo" class="block text-sm font-medium text-slate-700 mb-1">Sjekke leirskole / fraværsdatoer <span class="text-rose-500">*</span></label>
+                    <p class="text-xs text-slate-500 mb-2">Vennligst oppgi om noen trinn eller klasser er på leirskole, klassetur eller har spesielle fraværsdager i den aktuelt valgte perioden.</p>
+                    <textarea id="campInfo" name="campInfo" required rows="2" placeholder="F.eks: 7. trinn er på leirskole f.o.m. tirsdag eller 'Ingen fravær planlagt'" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none text-sm"></textarea>
+                </div>
+
             </section>
 
-            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
-                <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
-                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold text-sm">5</div>
-                    <div>
-                        <h2 class="text-lg font-semibold text-slate-900">Kontaktperson</h2>
-                        <p class="text-xs text-slate-500">Hvem kan vi kontakte for avtale og bekreftelse?</p>
-                    </div>
-                </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="sm:col-span-2">
-                        <label for="contactName" class="block text-sm font-medium text-slate-700 mb-1">Kontaktnavn <span class="text-rose-500">*</span></label>
-                        <input type="text" id="contactName" name="contactName" required class="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500" placeholder="f.eks. Karin Nordmann">
-                        <p class="text-xs text-rose-500 font-medium mt-1 hidden" id="contactNameErr">Vennligst skriv inn kontaktnavn.</p>
+            <!-- SECTION 5: Kontaktinformasjon -->
+            <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80 space-y-6">
+                <div class="flex items-center gap-2 text-brand-600 font-semibold text-sm tracking-wide uppercase">
+                    <i data-lucide="user-check" class="w-4 h-4"></i>
+                    Steg 5
+                </div>
+                <h2 class="text-xl font-bold text-slate-900 border-b border-slate-100 pb-3">Kontaktperson for bestillingen</h2>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <div>
+                        <label for="contactName" class="block text-sm font-medium text-slate-700 mb-1">Navn på kontaktperson <span class="text-rose-500">*</span></label>
+                        <input type="text" id="contactName" name="contactName" required placeholder="Fornavn Etternavn" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none text-sm">
                     </div>
 
                     <div>
                         <label for="contactEmail" class="block text-sm font-medium text-slate-700 mb-1">E-postadresse <span class="text-rose-500">*</span></label>
-                        <input type="email" id="contactEmail" name="contactEmail" required class="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500" placeholder="karin@skole.no">
-                        <p class="text-xs text-rose-500 font-medium mt-1 hidden" id="contactEmailErr">Oppgi en gyldig e-postadresse.</p>
+                        <input type="email" id="contactEmail" name="contactEmail" required placeholder="navn@skole.no" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none text-sm">
                     </div>
 
                     <div>
                         <label for="contactMobile" class="block text-sm font-medium text-slate-700 mb-1">Mobil / Telefonnummer <span class="text-rose-500">*</span></label>
-                        <input type="tel" id="contactMobile" name="contactMobile" required class="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500" placeholder="f.eks. 900 00 000">
-                        <p class="text-xs text-rose-500 font-medium mt-1 hidden" id="contactMobileErr">Oppgi et gyldig mobil- eller telefonnummer.</p>
+                        <input type="tel" id="contactMobile" name="contactMobile" required placeholder="12 34 56 78" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none text-sm">
                     </div>
                 </div>
             </section>
 
-            <div class="flex flex-col items-center gap-4 pt-4">
-                <button type="submit" id="submitBtn" class="w-full sm:w-auto px-10 py-4 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2 text-base">
-                    <i data-lucide="send" class="w-5 h-5"></i> Send inn Bestillingsskjema
+
+            <!-- SUBMIT BUTTON -->
+            <div class="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p class="text-xs text-slate-500">Ved å sende inn godtar du at Lima Foto behandler opplysningene for fotograferingsavtalen.</p>
+                <button type="button" onclick="validateAndSubmit()" class="w-full sm:w-auto px-8 py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-semibold rounded-xl shadow-lg shadow-brand-500/30 transition transform active:scale-95 flex items-center justify-center gap-2">
+                    <i data-lucide="send" class="w-5 h-5"></i>
+                    Send Bestilling
                 </button>
-                <p class="text-xs text-slate-400 text-center">Ved å sende inn godtar du at vi behandler opplysningene for å koordinere fotograferingen.</p>
             </div>
 
         </form>
-
-        <!-- Success Receipt Modal -->
-        <div id="receiptModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 sm:p-8 max-h-[90vh] overflow-y-auto animate-fade-in">
-                
-                <div class="text-center pb-6 border-b border-slate-100">
-                    <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <i data-lucide="check-circle-2" class="w-10 h-10"></i>
-                    </div>
-                    <h2 class="text-2xl font-bold text-slate-900">Bestilling Mottatt!</h2>
-                    <p class="text-sm text-slate-500 mt-1">Takk for bestillingen. En bekreftelse er sendt og oppsummeringen vises under.</p>
-                </div>
-
-                <div id="receiptContent" class="py-6 space-y-4 text-sm text-slate-700">
-                    <!-- Populated via JavaScript -->
-                </div>
-
-                <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-100">
-                    <button onclick="window.print()" class="flex-1 px-4 py-2.5 border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium rounded-xl flex items-center justify-center gap-2 text-xs">
-                        <i data-lucide="printer" class="w-4 h-4"></i> Skriv ut kvittering
-                    </button>
-                    <button onclick="resetForm()" class="flex-1 px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-xl flex items-center justify-center gap-2 text-xs">
-                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Ny bestilling
-                    </button>
-                </div>
-
-            </div>
-        </div>
     </main>
 
+    <!-- SUCCESS / SUMMARY MODAL -->
+    <div id="summaryModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div id="summaryModalContent" class="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-8 max-h-[90vh] overflow-y-auto shadow-2xl space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                        <i data-lucide="check" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">Bestilling Registrert!</h3>
+                        <p class="text-xs text-slate-500">En bekreftelse sendes til din e-post</p>
+                    </div>
+                </div>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 no-print">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <div id="summaryDetails" class="space-y-4 text-sm text-slate-700">
+                <!-- Dynamisk fylt via JavaScript -->
+            </div>
+
+            <div class="pt-4 border-t border-slate-100 flex justify-end gap-3 no-print">
+                <button onclick="window.print()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium text-sm flex items-center gap-2">
+                    <i data-lucide="printer" class="w-4 h-4"></i> Skriv ut kvittering
+                </button>
+                <button onclick="closeModal()" class="px-5 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-lg font-medium text-sm">
+                    Ny bestilling
+                </button>
+            </div>
+        </div>
+    </div>
+
+
     <script>
-        // Initialize Icons
+        // Initialize Lucide Icons
         lucide.createIcons();
 
-        // Helper to render class options including main grade (1. trinn) and individual letters
-        function generateGradeRow(gradeNum, labelPrefix = '', letters = ['A', 'B', 'C', 'D']) {
-            const mainLabel = `${gradeNum}. trinn`;
+        // Data for dynamic class generation
+        const barneskoleTrinn = [
+            { id: 1, name: "1. trinn", letter: true },
+            { id: 2, name: "2. trinn", letter: true },
+            { id: 3, name: "3. trinn", letter: true },
+            { id: 4, name: "4. trinn", letter: true },
+            { id: 5, name: "5. trinn", letter: true },
+            { id: 6, name: "6. trinn", letter: true },
+            { id: 7, name: "7. trinn", letter: true }
+        ];
+
+        const ungdomskoleTrinn = [
+            { id: 8, name: "8. trinn", letter: true },
+            { id: 9, name: "9. trinn", letter: true },
+            { id: 10, name: "10. trinn", letter: true }
+        ];
+
+        const vgsTrinn = [
+            { id: 'Vg1', name: "Vg1", letter: true },
+            { id: 'Vg2', name: "Vg2", letter: true },
+            { id: 'Vg3', name: "Vg3", letter: true }
+        ];
+
+        const letters = ['A', 'B', 'C', 'D'];
+
+        // Handle toggle split date
+        function toggleSplitDate() {
+            const chk = document.getElementById('chkSplitDate');
+            const container = document.getElementById('splitDateContainer');
+            if(chk.checked) {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        // Handle Org Type Changes
+        function handleOrgTypeChange() {
+            const checkedOrgs = Array.from(document.querySelectorAll('input[name="orgType"]:checked')).map(el => el.value);
+            const dynamicSection = document.getElementById('dynamicClassesSection');
+            const errorMsg = document.getElementById('orgTypeError');
+
+            if(checkedOrgs.length > 0) {
+                errorMsg.classList.add('hidden');
+            }
+
+            // Reset containers
+            document.getElementById('containerBarneskole').classList.add('hidden');
+            document.getElementById('containerUngdomskole').classList.add('hidden');
+            document.getElementById('containerVGS').classList.add('hidden');
+            document.getElementById('containerCustomGroup').classList.add('hidden');
+
+            let hasSchoolType = false;
+
+            if (checkedOrgs.includes('barneskole')) {
+                renderClassCheckboxes('barneskoleCheckboxes', barneskoleTrinn);
+                document.getElementById('containerBarneskole').classList.remove('hidden');
+                hasSchoolType = true;
+            }
+
+            if (checkedOrgs.includes('ungdomskole')) {
+                renderClassCheckboxes('ungdomskoleCheckboxes', ungdomskoleTrinn);
+                document.getElementById('containerUngdomskole').classList.remove('hidden');
+                hasSchoolType = true;
+            }
+
+            if (checkedOrgs.includes('vgs')) {
+                renderClassCheckboxes('vgsCheckboxes', vgsTrinn);
+                document.getElementById('containerVGS').classList.remove('hidden');
+                hasSchoolType = true;
+            }
+
+            if (checkedOrgs.includes('barnehage') || checkedOrgs.includes('idrettslag') || checkedOrgs.includes('bedrift')) {
+                document.getElementById('containerCustomGroup').classList.remove('hidden');
+                hasSchoolType = true;
+            }
+
+            if(hasSchoolType) {
+                dynamicSection.classList.remove('hidden');
+            } else {
+                dynamicSection.classList.add('hidden');
+            }
+
+            updateSubClassLists();
+        }
+
+        // Render Checkboxes for classes
+        function renderClassCheckboxes(targetId, trinnList) {
+            const container = document.getElementById(targetId);
+            container.innerHTML = '';
+
+            trinnList.forEach(trinn => {
+                const trinnBox = document.createElement('div');
+                trinnBox.className = 'bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col gap-2';
+                
+                // Add option for the whole level (e.g. 1. trinn)
+                let html = `
+                    <label class="font-bold text-xs text-slate-800 flex items-center gap-2 border-b border-slate-200 pb-1.5 cursor-pointer">
+                        <input type="checkbox" name="selectedClass" value="${trinn.name}" onchange="updateSubClassLists()" class="w-4 h-4 text-brand-500 rounded border-slate-300">
+                        <span>Hele ${trinn.name}</span>
+                    </label>
+                    <div class="grid grid-cols-2 gap-1.5 pt-0.5">
+                `;
+
+                // Add letter classes (A, B, C, D)
+                letters.forEach(letter => {
+                    const className = `${trinn.id}${letter}`;
+                    html += `
+                        <label class="inline-flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer">
+                            <input type="checkbox" name="selectedClass" value="${className}" onchange="updateSubClassLists()" class="w-3.5 h-3.5 text-brand-500 rounded border-slate-300">
+                            ${className}
+                        </label>
+                    `;
+                });
+
+                html += `</div>`;
+                trinnBox.innerHTML = html;
+                container.appendChild(trinnBox);
+            });
+        }
+
+        // Toggle sub class selector for packages
+        function togglePackageOptions() {
+            const chkGroup = document.getElementById('chkGruppebilder').checked;
+            const chkPortrait = document.getElementById('chkPortrettbilder').checked;
+            const container = document.getElementById('packageDetailsContainer');
+
+            const groupSub = document.getElementById('groupDetailsSub');
+            const portraitSub = document.getElementById('portraitDetailsSub');
+
+            if (chkGroup || chkPortrait) {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+
+            if (chkGroup) groupSub.classList.remove('hidden'); else groupSub.classList.add('hidden');
+            if (chkPortrait) portraitSub.classList.remove('hidden'); else portraitSub.classList.add('hidden');
+
+            updateSubClassLists();
+        }
+
+        function toggleSubClassList(type, show) {
+            const target = document.getElementById(type + 'SubClassList');
+            if (show) target.classList.remove('hidden');
+            else target.classList.add('hidden');
+        }
+
+        // Keep sub-lists updated with checked classes
+        function updateSubClassLists() {
+            const selectedClasses = Array.from(document.querySelectorAll('input[name="selectedClass"]:checked')).map(cb => cb.value);
             
-            let html = `<div class="p-3 bg-white rounded-lg border border-slate-200">`;
-            html += `<div class="flex flex-wrap items-center gap-2">`;
-            
-            // Rent trinn-valg
-            html += `
-                <label class="flex items-center px-2.5 py-1 bg-brand-50 border border-brand-200 hover:bg-brand-100 rounded-md cursor-pointer font-semibold text-brand-900">
-                    <input type="checkbox" name="selectedClasses" value="${labelPrefix}${mainLabel}" class="w-3.5 h-3.5 text-brand-600 rounded">
-                    <span class="ml-1.5">${mainLabel}</span>
+            const groupTarget = document.getElementById('groupSubClassList');
+            const portraitTarget = document.getElementById('portraitSubClassList');
+
+            let html = '';
+            if (selectedClasses.length === 0) {
+                html = '<p class="text-xs text-slate-400 col-span-full">Velg klasser i Steg 3 først.</p>';
+            } else {
+                selectedClasses.forEach(c => {
+                    html += `
+                        <label class="inline-flex items-center gap-1.5 text-xs text-slate-700 bg-white p-1.5 rounded border border-slate-200">
+                            <input type="checkbox" name="${type => type}SelectedClass" value="${c}" class="w-3.5 h-3.5 text-brand-500 rounded"> ${c}
+                        </label>
+                    `;
+                });
+            }
+
+            groupTarget.innerHTML = selectedClasses.map(c => `
+                <label class="inline-flex items-center gap-1.5 text-xs text-slate-700 bg-white p-1.5 rounded border border-slate-200">
+                    <input type="checkbox" name="groupSpecificClass" value="${c}" class="w-3.5 h-3.5 text-brand-500 rounded"> ${c}
                 </label>
-                <span class="text-slate-300 font-light">|</span>
-            `;
+            `).join('') || html;
 
-            // Enkeltklasser (A, B, C, D...)
-            letters.forEach(letter => {
-                const cls = `${gradeNum}${letter}`;
-                html += `
-                    <label class="flex items-center px-2 py-1 bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded cursor-pointer">
-                        <input type="checkbox" name="selectedClasses" value="${labelPrefix}${cls}" class="w-3.5 h-3.5 text-brand-600 rounded">
-                        <span class="ml-1.5 text-slate-700">${cls}</span>
-                    </label>`;
-            });
-
-            html += `</div></div>`;
-            return html;
+            portraitTarget.innerHTML = selectedClasses.map(c => `
+                <label class="inline-flex items-center gap-1.5 text-xs text-slate-700 bg-white p-1.5 rounded border border-slate-200">
+                    <input type="checkbox" name="portraitSpecificClass" value="${c}" class="w-3.5 h-3.5 text-brand-500 rounded"> ${c}
+                </label>
+            `).join('') || html;
         }
 
-        function initGradeGrids() {
-            // 1. Barneskole (1-7)
-            const bContainer = document.getElementById('barneskoleContainer');
-            let bHtml = '';
-            for (let t = 1; t <= 7; t++) {
-                bHtml += generateGradeRow(t);
-            }
-            bContainer.innerHTML = bHtml;
+        // Form Validation & Modal Trigger
+        function validateAndSubmit() {
+            const form = document.getElementById('orderForm');
 
-            // 2. Ungdomsskole (8-10)
-            const uContainer = document.getElementById('ungdomsskoleContainer');
-            let uHtml = '';
-            for (let t = 8; t <= 10; t++) {
-                uHtml += generateGradeRow(t);
-            }
-            uContainer.innerHTML = uHtml;
-
-            // 3. VGS (Vg1, Vg2, Vg3)
-            const vContainer = document.getElementById('vgsContainer');
-            let vHtml = '';
-            ['Vg1', 'Vg2', 'Vg3'].forEach(vg => {
-                vHtml += `
-                    <div class="p-3 bg-white rounded-lg border border-slate-200">
-                        <div class="flex flex-wrap items-center gap-2">
-                            <label class="flex items-center px-2.5 py-1 bg-brand-50 border border-brand-200 hover:bg-brand-100 rounded-md cursor-pointer font-semibold text-brand-900">
-                                <input type="checkbox" name="selectedClasses" value="${vg}" class="w-3.5 h-3.5 text-brand-600 rounded">
-                                <span class="ml-1.5">${vg}</span>
-                            </label>
-                            <span class="text-slate-300 font-light">|</span>
-                            ${['A', 'B', 'C', 'D'].map(l => `
-                                <label class="flex items-center px-2 py-1 bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded cursor-pointer">
-                                    <input type="checkbox" name="selectedClasses" value="${vg}${l}" class="w-3.5 h-3.5 text-brand-600 rounded">
-                                    <span class="ml-1.5 text-slate-700">${vg}${l}</span>
-                                </label>
-                            `).join('')}
-                        </div>
-                    </div>`;
-            });
-            vContainer.innerHTML = vHtml;
-        }
-
-        // Toggle visibility of dynamic organizational sections
-        function toggleOrgInputs() {
-            const selectedOrgs = Array.from(document.querySelectorAll('input[name="orgType"]:checked')).map(cb => cb.value);
-            
-            const dynSection = document.getElementById('dynamicClassesSection');
-            const barneskoleBlock = document.getElementById('barneskoleBlock');
-            const ungdomsskoleBlock = document.getElementById('ungdomsskoleBlock');
-            const vgsBlock = document.getElementById('vgsBlock');
-            const customGroupBlock = document.getElementById('customGroupBlock');
-
-            if (selectedOrgs.length > 0) {
-                dynSection.classList.remove('hidden');
-            } else {
-                dynSection.classList.add('hidden');
-            }
-
-            barneskoleBlock.classList.toggle('hidden', !selectedOrgs.includes('barneskole'));
-            ungdomsskoleBlock.classList.toggle('hidden', !selectedOrgs.includes('ungdomsskole'));
-            vgsBlock.classList.toggle('hidden', !selectedOrgs.includes('vgs'));
-
-            const hasCustom = selectedOrgs.includes('barnehage') || selectedOrgs.includes('idrettslag') || selectedOrgs.includes('bedrift');
-            customGroupBlock.classList.toggle('hidden', !hasCustom);
-        }
-
-        // Toggle Split Date inputs
-        function toggleSplitDateFields() {
-            const isSplit = document.getElementById('chkSplitDate').checked;
-            document.getElementById('splitDateContainer').classList.toggle('hidden', !isSplit);
-        }
-
-        // Toggle sub-options for Photo Packages
-        function togglePackageSubOptions() {
-            const chkGroup = document.getElementById('chkGroupPhoto').checked;
-            const chkPortrait = document.getElementById('chkPortraitPhoto').checked;
-
-            document.getElementById('groupPhotoSub').classList.toggle('hidden', !chkGroup);
-            document.getElementById('portraitPhotoSub').classList.toggle('hidden', !chkPortrait);
-        }
-
-        // Validate and handle form submission
-        async function handleFormSubmit(event) {
-            event.preventDefault();
-
-            let isValid = true;
-
-            // 1. Org Type Validation
-            const selectedOrgs = Array.from(document.querySelectorAll('input[name="orgType"]:checked')).map(cb => cb.value);
-            const orgTypeErr = document.getElementById('orgTypeErr');
-            if (selectedOrgs.length === 0) {
-                orgTypeErr.classList.remove('hidden');
-                isValid = false;
-            } else {
-                orgTypeErr.classList.add('hidden');
-            }
-
-            // 2. Standard Input Validations
-            const fields = [
-                { id: 'orgName', errId: 'orgNameErr' },
-                { id: 'photoLocation', errId: 'photoLocationErr' },
-                { id: 'photoDateFrom', errId: 'photoDateFromErr' },
-                { id: 'classCount', errId: 'classCountErr' },
-                { id: 'studentCount', errId: 'studentCountErr' },
-                { id: 'contactName', errId: 'contactNameErr' },
-                { id: 'contactEmail', errId: 'contactEmailErr' },
-                { id: 'contactMobile', errId: 'contactMobileErr' }
-            ];
-
-            fields.forEach(f => {
-                const input = document.getElementById(f.id);
-                const err = document.getElementById(f.errId);
-                if (!input.value.trim()) {
-                    err.classList.remove('hidden');
-                    isValid = false;
-                } else {
-                    err.classList.add('hidden');
-                }
-            });
-
-            // 3. Photo Package Validation
-            const selectedPackages = Array.from(document.querySelectorAll('input[name="photoPackage"]:checked')).map(cb => cb.value);
-            const packageErr = document.getElementById('packageErr');
-            if (selectedPackages.length === 0) {
-                packageErr.classList.remove('hidden');
-                isValid = false;
-            } else {
-                packageErr.classList.add('hidden');
-            }
-
-            if (!isValid) {
-                const firstError = document.querySelector('.text-rose-500:not(.hidden)');
-                if (firstError) {
-                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
+            // Check mandatory orgType
+            const orgs = document.querySelectorAll('input[name="orgType"]:checked');
+            if (orgs.length === 0) {
+                document.getElementById('orgTypeError').classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
                 return;
             }
 
-            // Visual indicator on submit button
-            const btn = document.getElementById('submitBtn');
-            const originalText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Sender inn...`;
-            lucide.createIcons();
-
-            // Collect form data for sending to FormSubmit
-            const formData = new FormData(document.getElementById('bookingForm'));
-            formData.append('_subject', `Ny Fotobestilling: ${document.getElementById('orgName').value}`);
-            formData.append('_captcha', 'false');
-
-            try {
-                // Send background request to FormSubmit endpoint
-                await fetch('https://formsubmit.co/ajax/erik.petermann@limafoto.no', {
-                    method: 'POST',
-                    body: formData
-                });
-            } catch (err) {
-                console.warn('FormSubmit background send notice:', err);
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-                lucide.createIcons();
-                showReceipt(selectedOrgs, selectedPackages);
+            // Standard HTML5 validation check
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
             }
-        }
 
-        function showReceipt(selectedOrgs, selectedPackages) {
-            const orgName = document.getElementById('orgName').value;
-            const photoLocation = document.getElementById('photoLocation').value;
+            // Capture all selected classes & detail lists into hidden fields for email delivery
+            const selectedClasses = Array.from(document.querySelectorAll('input[name="selectedClass"]:checked')).map(cb => cb.value);
+            document.getElementById('hidden_selectedClasses').value = selectedClasses.join(', ');
 
-            // Dates
+            const groupSpecific = Array.from(document.querySelectorAll('input[name="groupSpecificClass"]:checked')).map(cb => cb.value);
+            const groupRadio = document.querySelector('input[name="groupClassesDetailsRadio"]:checked')?.value;
+            document.getElementById('hidden_groupClassesDetails').value = groupRadio === 'utvalgte' ? groupSpecific.join(', ') : 'alle';
+
+            const portraitSpecific = Array.from(document.querySelectorAll('input[name="portraitSpecificClass"]:checked')).map(cb => cb.value);
+            const portraitRadio = document.querySelector('input[name="portraitClassesDetailsRadio"]:checked')?.value;
+            document.getElementById('hidden_portraitClassesDetails').value = portraitRadio === 'utvalgte' ? portraitSpecific.join(', ') : 'alle';
+
+            // Set email subject dynamically
+            const orgNameVal = document.getElementById('orgName').value;
+            document.getElementById('emailSubject').value = `Ny Fotobestilling: ${orgNameVal}`;
+
+            // Build Summary HTML for Modal
+            const orgTypes = Array.from(orgs).map(cb => cb.value).join(', ');
             const dateFrom = document.getElementById('photoDateFrom').value;
             const dateTo = document.getElementById('photoDateTo').value;
             const isSplit = document.getElementById('chkSplitDate').checked;
             const splitFrom = document.getElementById('splitDateFrom').value;
             const splitTo = document.getElementById('splitDateTo').value;
 
-            let dateString = dateFrom + (dateTo ? ` til ${dateTo}` : '');
-            if (isSplit) {
-                dateString += `<br><span class="text-brand-700 font-medium">Splitt / Del 2:</span> ${splitFrom || 'Ikke oppgitt'} ${splitTo ? `til ${splitTo}` : ''}`;
-            }
+            const packages = Array.from(document.querySelectorAll('input[name="photoPackage"]:checked')).map(cb => cb.value).join(', ');
 
-            const classCount = document.getElementById('classCount').value;
-            const studentCount = document.getElementById('studentCount').value;
-            const campInfo = document.getElementById('campInfo').value || 'Ingen spesifisert';
-            
-            const contactName = document.getElementById('contactName').value;
-            const contactEmail = document.getElementById('contactEmail').value;
-            const contactMobile = document.getElementById('contactMobile').value;
-
-            // Selected Classes
-            const selectedClasses = Array.from(document.querySelectorAll('input[name="selectedClasses"]:checked')).map(cb => cb.value);
-            const customGroupText = document.getElementById('customGroupText').value;
-
-            // Sub options
-            const groupDetails = document.getElementById('groupClassesDetails').value;
-            const portraitDetails = document.getElementById('portraitClassesDetails').value;
-
-            // Radio selections
-            const siblingPhoto = document.querySelector('input[name="siblingPhoto"]:checked')?.value || 'Nei';
-            const staffPhoto = document.querySelector('input[name="staffPhoto"]:checked')?.value || 'Nei';
-            const staffPortrait = document.querySelector('input[name="staffPortrait"]:checked')?.value || 'Nei';
-
-            const receiptHtml = `
-                <div class="bg-slate-50 p-4 rounded-xl space-y-2 border border-slate-200">
-                    <p class="font-semibold text-slate-900 border-b pb-1">Organisasjonsdetaljer</p>
-                    <p><strong class="text-slate-600">Skole/Organisasjon:</strong> ${orgName}</p>
-                    <p><strong class="text-slate-600">Type:</strong> ${selectedOrgs.join(', ')}</p>
-                    <p><strong class="text-slate-600">Lokasjon/Adresse:</strong> ${photoLocation}</p>
-                    <p><strong class="text-slate-600">Fotodato(er):</strong><br>${dateString}</p>
+            let modalHTML = `
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div>
+                        <span class="text-xs text-slate-400 font-semibold block uppercase">Organisasjonsdetaljer</span>
+                        <p class="font-bold text-slate-800">${orgNameVal}</p>
+                        <p class="text-xs text-slate-600 capitalize">Type: ${orgTypes}</p>
+                        <p class="text-xs text-slate-600">Lokasjon/Adresse: ${document.getElementById('photoLocation').value}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-400 font-semibold block uppercase">Fotodato(er)</span>
+                        <p class="font-semibold text-slate-800 text-xs">${dateFrom} ${dateTo ? 'til ' + dateTo : ''}</p>
+                        ${isSplit ? `<p class="text-xs text-brand-600 font-medium">Splitt / Del 2: ${splitFrom} til ${splitTo}</p>` : ''}
+                    </div>
                 </div>
 
-                <div class="bg-slate-50 p-4 rounded-xl space-y-2 border border-slate-200">
-                    <p class="font-semibold text-slate-900 border-b pb-1">Omfang & Klasser</p>
-                    <p><strong class="text-slate-600">Antall klasser:</strong> ${classCount} | <strong class="text-slate-600">Antall deltakere:</strong> ${studentCount}</p>
-                    ${selectedClasses.length > 0 ? `<p><strong class="text-slate-600">Valgte trinn/klasser:</strong> ${selectedClasses.join(', ')}</p>` : ''}
-                    ${customGroupText ? `<p><strong class="text-slate-600">Spesifiserte grupper:</strong> ${customGroupText}</p>` : ''}
-                    <p><strong class="text-slate-600">Leirskole / Fravær:</strong> ${campInfo}</p>
+                <div class="space-y-2 border-t border-slate-100 pt-3">
+                    <span class="text-xs text-slate-400 font-semibold block uppercase">Omfang & Klasser</span>
+                    <p><strong>Antall klasser:</strong> ${document.getElementById('classCount').value} | <strong>Antall deltakere:</strong> ${document.getElementById('studentCount').value}</p>
+                    ${selectedClasses.length > 0 ? `<p><strong>Valgte trinn/klasser:</strong> ${selectedClasses.join(', ')}</p>` : ''}
+                    <p><strong>Leirskole / Fravær:</strong> ${document.getElementById('campInfo').value}</p>
                 </div>
 
-                <div class="bg-slate-50 p-4 rounded-xl space-y-2 border border-slate-200">
-                    <p class="font-semibold text-slate-900 border-b pb-1">Fotopakker & Valg</p>
-                    <p><strong class="text-slate-600">Valgte pakker:</strong> ${selectedPackages.join(', ')}</p>
-                    ${groupDetails ? `<p><strong class="text-slate-600">Gruppebilde-detaljer:</strong> ${groupDetails}</p>` : ''}
-                    ${portraitDetails ? `<p><strong class="text-slate-600">Portrett-detaljer:</strong> ${portraitDetails}</p>` : ''}
-                    <p><strong class="text-slate-600">Søskenfoto:</strong> ${siblingPhoto}</p>
-                    <p><strong class="text-slate-600">Personalbilde (Gruppe):</strong> ${staffPhoto}</p>
-                    <p><strong class="text-slate-600">Personal-portretter:</strong> ${staffPortrait}</p>
+                <div class="space-y-2 border-t border-slate-100 pt-3">
+                    <span class="text-xs text-slate-400 font-semibold block uppercase">Fotopakker & Valg</span>
+                    <p><strong>Valgte pakker:</strong> ${packages || 'Ingen spesifisert'}</p>
+                    ${groupSpecific.length > 0 ? `<p><strong>Gruppebilder for:</strong> ${groupSpecific.join(', ')}</p>` : ''}
+                    ${portraitSpecific.length > 0 ? `<p><strong>Portrettbilder for:</strong> ${portraitSpecific.join(', ')}</p>` : ''}
+                    <p><strong>Søskenfoto:</strong> ${document.querySelector('input[name="siblingPhoto"]:checked')?.value}</p>
+                    <p><strong>Personalbilde (Gruppe):</strong> ${document.querySelector('input[name="staffPhoto"]:checked')?.value}</p>
+                    <p><strong>Personal-portretter:</strong> ${document.querySelector('input[name="staffPortrait"]:checked')?.value}</p>
                 </div>
 
-                <div class="bg-slate-50 p-4 rounded-xl space-y-2 border border-slate-200">
-                    <p class="font-semibold text-slate-900 border-b pb-1">Kontaktinformasjon</p>
-                    <p><strong class="text-slate-600">Kontaktperson:</strong> ${contactName}</p>
-                    <p><strong class="text-slate-600">E-post:</strong> ${contactEmail}</p>
-                    <p><strong class="text-slate-600">Mobil / Telefon:</strong> ${contactMobile}</p>
+                <div class="space-y-1 border-t border-slate-100 pt-3 bg-brand-50 p-3 rounded-lg">
+                    <span class="text-xs text-brand-700 font-semibold block uppercase">Kontaktinformasjon</span>
+                    <p class="text-xs text-slate-700"><strong>Kontaktperson:</strong> ${document.getElementById('contactName').value}</p>
+                    <p class="text-xs text-slate-700"><strong>E-post:</strong> ${document.getElementById('contactEmail').value}</p>
+                    <p class="text-xs text-slate-700"><strong>Mobil / Telefon:</strong> ${document.getElementById('contactMobile').value}</p>
                 </div>
             `;
 
-            document.getElementById('receiptContent').innerHTML = receiptHtml;
-            document.getElementById('receiptModal').classList.remove('hidden');
+            document.getElementById('summaryDetails').innerHTML = modalHTML;
+            document.getElementById('summaryModal').classList.remove('hidden');
+
+            // Send actual form to FormSubmit
+            form.submit();
         }
 
-        function resetForm() {
-            document.getElementById('bookingForm').reset();
-            toggleOrgInputs();
-            toggleSplitDateFields();
-            togglePackageSubOptions();
-            document.getElementById('receiptModal').classList.add('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        function closeModal() {
+            document.getElementById('summaryModal').classList.add('hidden');
         }
-
-        window.onload = function() {
-            initGradeGrids();
-        };
     </script>
 </body>
 </html>
