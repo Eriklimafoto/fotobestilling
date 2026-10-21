@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bestillingsskjema - Fotografering</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
@@ -40,7 +38,6 @@
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen pb-12">
 
-    <!-- Header -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -49,7 +46,7 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold text-slate-900 leading-tight">Lima Foto</h1>
-                    <p class="text-xs text-slate-500 font-medium">Smart Skoleskjema m/ Automatisk Skoleregister</p>
+                    <p class="text-xs text-slate-500 font-medium">Smart Bestillingsskjema m/ Opprykk & Historikk</p>
                 </div>
             </div>
             <span class="text-xs bg-emerald-50 text-emerald-700 font-semibold px-3 py-1 rounded-full border border-emerald-200 hidden sm:inline-flex items-center gap-1.5">
@@ -58,9 +55,7 @@
         </div>
     </header>
 
-    <!-- Main Form Container -->
     <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-8">
-        
         <form id="orderForm" action="https://formsubmit.co/erik.petermann@limafoto.no" method="POST" class="space-y-8">
             
             <input type="hidden" name="_subject" id="emailSubject" value="Ny Fotobestilling">
@@ -68,6 +63,7 @@
             <input type="hidden" name="_captcha" value="false">
 
             <input type="hidden" name="selectedClasses" id="hidden_selectedClasses" value="">
+            <input type="hidden" name="classesDetailWithCounts" id="hidden_classesDetailWithCounts" value="">
             <input type="hidden" name="trinnClassesDetails" id="hidden_trinnClassesDetails" value="">
             <input type="hidden" name="groupClassesDetails" id="hidden_groupClassesDetails" value="">
             <input type="hidden" name="portraitClassesDetails" id="hidden_portraitClassesDetails" value="">
@@ -160,6 +156,14 @@
                     <div id="searchSuggestions" class="absolute left-4 right-4 top-20 bg-white border border-slate-200 rounded-xl shadow-xl z-20 hidden max-h-48 overflow-y-auto"></div>
                 </div>
 
+                <!-- HISTORIKK BOKS (Hentes fra fotodato.xlsx) -->
+                <div id="historyBox" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-1.5 text-xs text-amber-900">
+                    <div class="flex items-center gap-2 font-bold text-amber-950 text-sm">
+                        <i data-lucide="history" class="w-4 h-4 text-amber-600"></i> Fjorårets fotografering på denne skolen
+                    </div>
+                    <p id="historyText" class="font-medium">Datoer i fjor: 30. sep - 1. okt (2 fotodager). Fotografer: Håkon R, Kine SØst (2 fotografer per dag).</p>
+                </div>
+
                 <div>
                     <label for="orgName" class="block text-sm font-medium text-slate-700 mb-1">Navn på Skole / Organisasjon <span class="text-rose-500">*</span></label>
                     <input type="text" id="orgName" name="orgName" required placeholder="f.eks. Solvang Barneskole" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none text-sm">
@@ -176,6 +180,7 @@
                     </div>
                 </div>
 
+                <!-- Datoer & Fotodager -->
                 <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-4">
                     <h3 class="text-sm font-semibold text-slate-800 flex items-center gap-2">
                         <i data-lucide="clock" class="w-4 h-4 text-brand-500"></i> Ønsket dato for fotografering
@@ -211,7 +216,8 @@
                     </div>
                 </div>
 
-                <div id="photographerCalcBox" class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 space-y-2 hidden">
+                <!-- BEMANNINGS-KALKULATOR OG ADVARSEL -->
+                <div id="photographerCalcBox" class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 space-y-3 hidden">
                     <div class="flex items-start gap-3">
                         <div class="p-2 bg-emerald-500 text-white rounded-lg mt-0.5">
                             <i data-lucide="users" class="w-5 h-5"></i>
@@ -221,6 +227,15 @@
                             <p class="text-xs text-emerald-800" id="photoCalcDesc">Beregner basert på 75–80 elever per fotograf per dag.</p>
                         </div>
                     </div>
+
+                    <div id="warningBox" class="hidden bg-rose-50 border border-rose-300 p-3.5 rounded-lg text-xs text-rose-900 font-medium space-y-1">
+                        <div class="flex items-center gap-1.5 font-bold text-rose-950">
+                            <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600 shrink-0"></i>
+                            <span>Advarsel angående bemanning/dager:</span>
+                        </div>
+                        <p id="warningText">Valgt antall dager/fotografer stemmer ikke overens med fjoråret eller kapasitetsbehovet.</p>
+                    </div>
+
                     <div id="upsellTipBox" class="hidden bg-white p-3 rounded-lg border border-amber-200 text-xs text-amber-900 font-medium flex items-center gap-2">
                         <i data-lucide="lightbulb" class="w-5 h-5 text-amber-500 shrink-0"></i>
                         <span id="upsellTipText">Salgstips til skolen...</span>
@@ -238,6 +253,7 @@
                     </div>
                 </div>
 
+                <!-- Skolens rammetid -->
                 <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-3">
                     <h3 class="text-sm font-semibold text-slate-800 flex items-center gap-2">
                         <i data-lucide="calendar-days" class="w-4 h-4 text-brand-500"></i> Skolens start- og sluttid (Mandag til Fredag)
@@ -286,6 +302,7 @@
                     </div>
                 </div>
 
+                <!-- Fotolokale -->
                 <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-4">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div>
@@ -309,46 +326,24 @@
 
             </section>
 
-            <!-- STEG 3 -->
+            <!-- STEG 3: Klasser m/ Redigerbart Elevtall per klasse -->
             <section id="dynamicClassesSection" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80 space-y-6 hidden">
                 <div class="flex items-center gap-2 text-brand-600 font-semibold text-sm tracking-wide uppercase">
                     <i data-lucide="list-checks" class="w-4 h-4"></i> Steg 3
                 </div>
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                     <div>
-                        <h2 class="text-xl font-bold text-slate-900">Velg klasser / trinn som skal fotograferes</h2>
-                        <p class="text-sm text-slate-500">Klasselisten er ferdig avkrysset fra kundedatabasen din.</p>
+                        <h2 class="text-xl font-bold text-slate-900">Klasser & Antall Elever per klasse</h2>
+                        <p class="text-sm text-slate-500">Endre elevtall per klasse direkte. Huker du av for **Opprykk** i Steg 4, flyttes klassene automatisk 1 trinn opp!</p>
                     </div>
                 </div>
 
-                <div id="containerBarneskole" class="hidden space-y-4 border-t border-slate-100 pt-4">
-                    <h3 class="text-md font-bold text-slate-800 flex items-center gap-2">
-                        <i data-lucide="school" class="w-4 h-4 text-brand-500"></i> Barneskole (1. til 7. trinn)
-                    </h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3" id="barneskoleCheckboxes"></div>
-                </div>
-
-                <div id="containerUngdomskole" class="hidden space-y-4 border-t border-slate-100 pt-4">
-                    <h3 class="text-md font-bold text-slate-800 flex items-center gap-2">
-                        <i data-lucide="graduation-cap" class="w-4 h-4 text-brand-500"></i> Ungdomsskole (8. til 10. trinn)
-                    </h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3" id="ungdomskoleCheckboxes"></div>
-                </div>
-
-                <div id="containerVGS" class="hidden space-y-4 border-t border-slate-100 pt-4">
-                    <h3 class="text-md font-bold text-slate-800 flex items-center gap-2">
-                        <i data-lucide="book-open" class="w-4 h-4 text-brand-500"></i> Videregående skole (Vg1 til Vg3)
-                    </h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3" id="vgsCheckboxes"></div>
-                </div>
-
-                <div id="containerCustomGroup" class="hidden border-t border-slate-100 pt-4">
-                    <label for="customGroupText" class="block text-sm font-bold text-slate-800 mb-1">Spesifiser avdelinger, lag eller grupper</label>
-                    <textarea id="customGroupText" name="customGroupText" rows="3" placeholder="Beskriv avdelingene..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none text-sm"></textarea>
+                <div id="classesListContainer" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3" id="editableClassesGrid"></div>
                 </div>
             </section>
 
-            <!-- STEG 4 -->
+            <!-- STEG 4: Produkttype -->
             <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80 space-y-6">
                 <div class="flex items-center gap-2 text-brand-600 font-semibold text-sm tracking-wide uppercase">
                     <i data-lucide="layers" class="w-4 h-4"></i> Steg 4
@@ -383,9 +378,9 @@
                             <input type="checkbox" name="photoPackage" value="Montasjebilder" class="w-4 h-4 text-brand-500 rounded border-slate-300">
                             <span class="ml-2.5 text-sm font-medium text-slate-700">Montasjebilder</span>
                         </label>
-                        <label class="flex items-center p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition bg-slate-50/50 col-span-2 sm:col-span-1">
-                            <input type="checkbox" name="photoPackage" value="Opprykk" class="w-4 h-4 text-brand-500 rounded border-slate-300">
-                            <span class="ml-2.5 text-sm font-medium text-slate-700">Opprykk</span>
+                        <label class="flex items-center p-3 border border-amber-300 bg-amber-50/60 rounded-xl cursor-pointer hover:bg-amber-100 transition col-span-2 sm:col-span-1 shadow-sm">
+                            <input type="checkbox" name="photoPackage" value="Opprykk" id="chkOpprykk" onchange="handleOpprykkToggle()" class="w-4 h-4 text-amber-600 rounded border-amber-400 focus:ring-amber-500">
+                            <span class="ml-2.5 text-sm font-bold text-amber-900">Opprykk (Flytt klasser 1 trinn opp)</span>
                         </label>
                     </div>
                 </div>
@@ -393,29 +388,17 @@
                 <div id="packageDetailsContainer" class="hidden space-y-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
                     <div id="trinnDetailsSub" class="hidden space-y-2">
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Hvilke klasser/trinn skal ha Trinnbilde?</label>
-                        <div class="flex gap-4">
-                            <label class="inline-flex items-center gap-1.5 text-sm"><input type="radio" name="trinnClassesDetailsRadio" value="alle" checked onchange="toggleSubClassList('trinn', false)" class="text-brand-500"> Alle valgte klasser</label>
-                            <label class="inline-flex items-center gap-1.5 text-sm"><input type="radio" name="trinnClassesDetailsRadio" value="utvalgte" onchange="toggleSubClassList('trinn', true)" class="text-brand-500"> Kun utvalgte klasser (1, 4, 7 forhåndsvalgt)</label>
-                        </div>
-                        <div id="trinnSubClassList" class="hidden grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2"></div>
+                        <div id="trinnSubClassList" class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2"></div>
                     </div>
 
                     <div id="groupDetailsSub" class="hidden space-y-2 pt-2 border-t border-slate-200">
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Hvilke klasser skal ha gruppebilder?</label>
-                        <div class="flex gap-4">
-                            <label class="inline-flex items-center gap-1.5 text-sm"><input type="radio" name="groupClassesDetailsRadio" value="alle" checked onchange="toggleSubClassList('group', false)" class="text-brand-500"> Alle valgte klasser</label>
-                            <label class="inline-flex items-center gap-1.5 text-sm"><input type="radio" name="groupClassesDetailsRadio" value="utvalgte" onchange="toggleSubClassList('group', true)" class="text-brand-500"> Kun utvalgte klasser (1, 4, 7 forhåndsvalgt)</label>
-                        </div>
-                        <div id="groupSubClassList" class="hidden grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2"></div>
+                        <div id="groupSubClassList" class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2"></div>
                     </div>
 
                     <div id="portraitDetailsSub" class="hidden space-y-2 pt-2 border-t border-slate-200">
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Hvilke klasser skal ha portrettbilder?</label>
-                        <div class="flex gap-4">
-                            <label class="inline-flex items-center gap-1.5 text-sm"><input type="radio" name="portraitClassesDetailsRadio" value="alle" checked onchange="toggleSubClassList('portrait', false)" class="text-brand-500"> Alle valgte klasser</label>
-                            <label class="inline-flex items-center gap-1.5 text-sm"><input type="radio" name="portraitClassesDetailsRadio" value="utvalgte" onchange="toggleSubClassList('portrait', true)" class="text-brand-500"> Kun utvalgte klasser (1, 4, 7 forhåndsvalgt)</label>
-                        </div>
-                        <div id="portraitSubClassList" class="hidden grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2"></div>
+                        <div id="portraitSubClassList" class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2"></div>
                     </div>
                 </div>
 
@@ -454,7 +437,7 @@
                 </div>
             </section>
 
-            <!-- STEG 5 -->
+            <!-- STEG 5: Kontaktpersoner -->
             <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80 space-y-6">
                 <div class="flex items-center gap-2 text-brand-600 font-semibold text-sm tracking-wide uppercase">
                     <i data-lucide="user-check" class="w-4 h-4"></i> Steg 5
@@ -509,6 +492,7 @@
         </form>
     </main>
 
+    <!-- SUCCESS / SUMMARY MODAL -->
     <div id="summaryModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div id="summaryModalContent" class="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-8 max-h-[90vh] overflow-y-auto shadow-2xl space-y-6">
             <div class="flex items-center justify-between border-b border-slate-100 pb-4">
@@ -537,6 +521,8 @@
         lucide.createIcons();
 
         let schoolDatabase = [];
+        let rawSelectedClasses = [];
+        let selectedSchoolHistory = null;
 
         document.addEventListener('DOMContentLoaded', () => {
             generateLocationFields();
@@ -598,18 +584,92 @@
                 handleOrgTypeChange();
             }
 
-            setTimeout(() => {
-                const allClassCbs = document.querySelectorAll('#barneskoleCheckboxes input[type="checkbox"]');
-                allClassCbs.forEach(cb => {
-                    if (school.classes.includes(cb.value)) cb.checked = true;
-                    else cb.checked = false;
-                });
-                updateSubClassLists();
-            }, 100);
+            if (school.history) {
+                selectedSchoolHistory = school.history;
+                document.getElementById('historyBox').classList.remove('hidden');
+                document.getElementById('historyText').innerText = 
+                    `Fjorårets oppsett (${school.history.lastYearDates}): ${school.history.days} fotodager, ${school.history.photographersPerDay} fotografer per dag (${school.history.photographers.join(', ')}).`;
+            } else {
+                selectedSchoolHistory = null;
+                document.getElementById('historyBox').classList.add('hidden');
+            }
 
+            // Lagre den opprinnelige klasselisten
+            rawSelectedClasses = JSON.parse(JSON.stringify(school.classesWithCounts || []));
+
+            renderEditableClasses();
             calculatePhotographers();
             document.getElementById('searchSuggestions').classList.add('hidden');
             document.getElementById('schoolSearchInput').value = school.name;
+        }
+
+        // Funksjon som flytter klassenavn ett trinn opp (Opprykk)
+        function shiftClassNameUp(className) {
+            // Håndterer f.eks. "1. trinn" -> "2. trinn"
+            if (className.includes('. trinn')) {
+                const num = parseInt(className);
+                if (!isNaN(num)) return `${num + 1}. trinn`;
+            }
+            // Håndterer f.eks. "1A" -> "2A", "7B" -> "8B"
+            const match = className.match(/^(\d+)([A-Za-z]+)$/);
+            if (match) {
+                const num = parseInt(match[1]);
+                const letter = match[2];
+                return `${num + 1}${letter}`;
+            }
+            return className;
+        }
+
+        function handleOpprykkToggle() {
+            renderEditableClasses();
+        }
+
+        function renderEditableClasses() {
+            const grid = document.getElementById('editableClassesGrid');
+            const section = document.getElementById('dynamicClassesSection');
+            const isOpprykk = document.getElementById('chkOpprykk')?.checked;
+            grid.innerHTML = '';
+
+            if (!rawSelectedClasses || rawSelectedClasses.length === 0) return;
+
+            rawSelectedClasses.forEach((cls) => {
+                const displayName = isOpprykk ? shiftClassNameUp(cls.name) : cls.name;
+                const card = document.createElement('div');
+                card.className = "bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center justify-between gap-2 shadow-sm";
+                card.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" name="selectedClass" value="${displayName}" checked onchange="recalculateTotalsFromClasses()" class="w-4 h-4 text-brand-500 rounded border-slate-300">
+                        <span class="text-sm font-bold text-slate-800 ${isOpprykk ? 'text-amber-800 font-extrabold' : ''}">${displayName}</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <label class="text-xs text-slate-500">Elever:</label>
+                        <input type="number" min="0" value="${cls.count}" data-class-name="${displayName}" oninput="recalculateTotalsFromClasses()" class="class-student-input w-16 px-2 py-1 text-sm font-semibold rounded border border-slate-300 text-center focus:ring-2 focus:ring-brand-500 outline-none bg-white">
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            section.classList.remove('hidden');
+            recalculateTotalsFromClasses();
+        }
+
+        function recalculateTotalsFromClasses() {
+            const checkedInputs = Array.from(document.querySelectorAll('#editableClassesGrid input[type="checkbox"]:checked'));
+            let totalStudents = 0;
+
+            checkedInputs.forEach(cb => {
+                const card = cb.closest('div.bg-slate-50');
+                const numInput = card.querySelector('.class-student-input');
+                if (numInput) {
+                    totalStudents += parseInt(numInput.value) || 0;
+                }
+            });
+
+            document.getElementById('classCount').value = checkedInputs.length;
+            document.getElementById('studentCount').value = totalStudents;
+
+            updateSubClassLists();
+            calculatePhotographers();
         }
 
         function calculatePhotographers() {
@@ -646,25 +706,28 @@
             const box = document.getElementById('photographerCalcBox');
             const title = document.getElementById('photoCalcTitle');
             const desc = document.getElementById('photoCalcDesc');
-            const upsellBox = document.getElementById('upsellTipBox');
-            const upsellText = document.getElementById('upsellTipText');
+            const warningBox = document.getElementById('warningBox');
+            const warningText = document.getElementById('warningText');
 
             box.classList.remove('hidden');
             title.innerHTML = `Anbefalt bemanning: <span class="text-emerald-700 font-extrabold text-base">${neededPhotographers} fotograf(er)</span> (${days} fotodag(er))`;
             desc.innerText = `Kapasitet per fotograf over ${days} dag(er) er ca. ${capacityPerPhotographer} elever. Totalt ${students} elever.`;
 
-            if (days === 1 && students > 80) {
-                const photographersIf1Day = Math.ceil(students / 80);
-                const photographersIf2Days = Math.ceil(students / 160);
-
-                if (photographersIf1Day > photographersIf2Days) {
-                    upsellBox.classList.remove('hidden');
-                    upsellText.innerHTML = `<strong>Innsalgstips til skolen:</strong> Ved 1 fotodag trengs ${photographersIf1Day} fotografer. Dersom dere utvider til <strong>2 fotodager</strong>, holder det med <strong>${photographersIf2Days} fotograf(er)</strong>!`;
-                } else {
-                    upsellBox.classList.add('hidden');
+            let warnings = [];
+            if (selectedSchoolHistory) {
+                if (days < selectedSchoolHistory.days) {
+                    warnings.push(`I fjor brukte skolen **${selectedSchoolHistory.days} fotodager** (du har valgt ${days} dag(er)).`);
                 }
+                if (neededPhotographers < selectedSchoolHistory.photographersPerDay) {
+                    warnings.push(`I fjor var det **${selectedSchoolHistory.photographersPerDay} fotografer per dag** på denne skolen.`);
+                }
+            }
+
+            if (warnings.length > 0) {
+                warningBox.classList.remove('hidden');
+                warningText.innerHTML = warnings.join('<br>');
             } else {
-                upsellBox.classList.add('hidden');
+                warningBox.classList.add('hidden');
             }
 
             document.getElementById('hidden_photographerRecommendation').value = `${neededPhotographers} fotograf(er) over ${days} dag(er)`;
@@ -712,14 +775,6 @@
             }
         }
 
-        const barneskoleTrinn = [
-            { id: 1, name: "1. trinn" }, { id: 2, name: "2. trinn" }, { id: 3, name: "3. trinn" },
-            { id: 4, name: "4. trinn" }, { id: 5, name: "5. trinn" }, { id: 6, name: "6. trinn" }, { id: 7, name: "7. trinn" }
-        ];
-        const ungdomskoleTrinn = [{ id: 8, name: "8. trinn" }, { id: 9, name: "9. trinn" }, { id: 10, name: "10. trinn" }];
-        const vgsTrinn = [{ id: 'Vg1', name: "Vg1" }, { id: 'Vg2', name: "Vg2" }, { id: 'Vg3', name: "Vg3" }];
-        const letters = ['A', 'B', 'C', 'D'];
-
         function toggleSplitDate() {
             const chk = document.getElementById('chkSplitDate');
             const container = document.getElementById('splitDateContainer');
@@ -733,77 +788,7 @@
             const errorMsg = document.getElementById('orgTypeError');
 
             if(checkedOrgs.length > 0) errorMsg.classList.add('hidden');
-
-            document.getElementById('containerBarneskole').classList.add('hidden');
-            document.getElementById('containerUngdomskole').classList.add('hidden');
-            document.getElementById('containerVGS').classList.add('hidden');
-            document.getElementById('containerCustomGroup').classList.add('hidden');
-
-            let hasSchoolType = false;
-
-            if (checkedOrgs.includes('barneskole')) {
-                renderClassCheckboxes('barneskoleCheckboxes', barneskoleTrinn, 'bs');
-                document.getElementById('containerBarneskole').classList.remove('hidden');
-                hasSchoolType = true;
-            }
-            if (checkedOrgs.includes('ungdomskole')) {
-                renderClassCheckboxes('ungdomskoleCheckboxes', ungdomskoleTrinn, 'us');
-                document.getElementById('containerUngdomskole').classList.remove('hidden');
-                hasSchoolType = true;
-            }
-            if (checkedOrgs.includes('vgs')) {
-                renderClassCheckboxes('vgsCheckboxes', vgsTrinn, 'vgs');
-                document.getElementById('containerVGS').classList.remove('hidden');
-                hasSchoolType = true;
-            }
-            if (checkedOrgs.includes('barnehage') || checkedOrgs.includes('idrettslag') || checkedOrgs.includes('bedrift')) {
-                document.getElementById('containerCustomGroup').classList.remove('hidden');
-                hasSchoolType = true;
-            }
-
-            if(hasSchoolType) dynamicSection.classList.remove('hidden');
-            else dynamicSection.classList.add('hidden');
-
-            updateSubClassLists();
-        }
-
-        function renderClassCheckboxes(targetId, trinnList, prefix) {
-            const container = document.getElementById(targetId);
-            container.innerHTML = '';
-
-            trinnList.forEach(trinn => {
-                const trinnBox = document.createElement('div');
-                trinnBox.className = 'bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col gap-2';
-                const trinnKey = `${prefix}_${trinn.id}`;
-                
-                let html = `
-                    <label class="font-bold text-xs text-slate-800 flex items-center gap-2 border-b border-slate-200 pb-1.5 cursor-pointer">
-                        <input type="checkbox" name="selectedClass" value="${trinn.name}" onchange="handleTrinnHeaderChange('${trinnKey}', this.checked)" class="w-4 h-4 text-brand-500 rounded border-slate-300">
-                        <span>Hele ${trinn.name}</span>
-                    </label>
-                    <div class="grid grid-cols-2 gap-1.5 pt-0.5">
-                `;
-
-                letters.forEach(letter => {
-                    const className = `${trinn.id}${letter}`;
-                    html += `
-                        <label class="inline-flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer">
-                            <input type="checkbox" name="selectedClass" value="${className}" data-trinn-group="${trinnKey}" onchange="updateSubClassLists()" class="w-3.5 h-3.5 text-brand-500 rounded border-slate-300">
-                            ${className}
-                        </label>
-                    `;
-                });
-
-                html += `</div>`;
-                trinnBox.innerHTML = html;
-                container.appendChild(trinnBox);
-            });
-        }
-
-        function handleTrinnHeaderChange(trinnKey, isChecked) {
-            const children = document.querySelectorAll(`input[data-trinn-group="${trinnKey}"]`);
-            children.forEach(child => child.checked = isChecked);
-            updateSubClassLists();
+            if(checkedOrgs.length > 0) dynamicSection.classList.remove('hidden');
         }
 
         function togglePackageOptions() {
@@ -826,15 +811,10 @@
             updateSubClassLists();
         }
 
-        function toggleSubClassList(type, show) {
-            const target = document.getElementById(type + 'SubClassList');
-            if (show) target.classList.remove('hidden');
-            else target.classList.add('hidden');
-        }
-
         function updateSubClassLists() {
-            const selectedClasses = Array.from(document.querySelectorAll('input[name="selectedClass"]:checked')).map(cb => cb.value);
-            
+            const checkedBoxes = Array.from(document.querySelectorAll('#editableClassesGrid input[type="checkbox"]:checked'));
+            const selectedClasses = checkedBoxes.map(cb => cb.value);
+
             ['trinn', 'group', 'portrait'].forEach(type => {
                 const target = document.getElementById(`${type}SubClassList`);
                 if (!target) return;
@@ -844,14 +824,11 @@
                     return;
                 }
 
-                target.innerHTML = selectedClasses.map(c => {
-                    const is147 = c.startsWith('1') || c.startsWith('4') || c.startsWith('7');
-                    return `
-                        <label class="inline-flex items-center gap-1.5 text-xs text-slate-700 bg-white p-1.5 rounded border border-slate-200">
-                            <input type="checkbox" name="${type}SpecificClass" value="${c}" ${is147 ? 'checked' : ''} class="w-3.5 h-3.5 text-brand-500 rounded"> ${c}
-                        </label>
-                    `;
-                }).join('');
+                target.innerHTML = selectedClasses.map(c => `
+                    <label class="inline-flex items-center gap-1.5 text-xs text-slate-700 bg-white p-1.5 rounded border border-slate-200">
+                        <input type="checkbox" name="${type}SpecificClass" value="${c}" checked class="w-3.5 h-3.5 text-brand-500 rounded"> ${c}
+                    </label>
+                `).join('');
             });
         }
 
@@ -890,20 +867,18 @@
                           `Fre: ${document.getElementById('time_fri_start').value}-${document.getElementById('time_fri_end').value}`;
             document.getElementById('hidden_schoolHours').value = hours;
 
-            const selectedClasses = Array.from(document.querySelectorAll('input[name="selectedClass"]:checked')).map(cb => cb.value);
-            document.getElementById('hidden_selectedClasses').value = selectedClasses.join(', ');
+            const checkedClassCbs = Array.from(document.querySelectorAll('#editableClassesGrid input[type="checkbox"]:checked'));
+            let classDetailsStr = [];
+            checkedClassCbs.forEach(cb => {
+                const card = cb.closest('div.bg-slate-50');
+                const numInput = card.querySelector('.class-student-input');
+                const cName = cb.value;
+                const cCount = numInput ? numInput.value : '0';
+                classDetailsStr.push(`${cName} (${cCount} el)`);
+            });
 
-            const trinnSpecific = Array.from(document.querySelectorAll('input[name="trinnSpecificClass"]:checked')).map(cb => cb.value);
-            const trinnRadio = document.querySelector('input[name="trinnClassesDetailsRadio"]:checked')?.value;
-            document.getElementById('hidden_trinnClassesDetails').value = trinnRadio === 'utvalgte' ? trinnSpecific.join(', ') : 'alle';
-
-            const groupSpecific = Array.from(document.querySelectorAll('input[name="groupSpecificClass"]:checked')).map(cb => cb.value);
-            const groupRadio = document.querySelector('input[name="groupClassesDetailsRadio"]:checked')?.value;
-            document.getElementById('hidden_groupClassesDetails').value = groupRadio === 'utvalgte' ? groupSpecific.join(', ') : 'alle';
-
-            const portraitSpecific = Array.from(document.querySelectorAll('input[name="portraitSpecificClass"]:checked')).map(cb => cb.value);
-            const portraitRadio = document.querySelector('input[name="portraitClassesDetailsRadio"]:checked')?.value;
-            document.getElementById('hidden_portraitClassesDetails').value = portraitRadio === 'utvalgte' ? portraitSpecific.join(', ') : 'alle';
+            document.getElementById('hidden_selectedClasses').value = checkedClassCbs.map(cb => cb.value).join(', ');
+            document.getElementById('hidden_classesDetailWithCounts').value = classDetailsStr.join(', ');
 
             const orgNameVal = document.getElementById('orgName').value;
             document.getElementById('emailSubject').value = `Ny Fotobestilling: ${orgNameVal}`;
@@ -914,7 +889,6 @@
             const isSplit = document.getElementById('chkSplitDate').checked;
             const splitFrom = document.getElementById('splitDateFrom').value;
             const splitTo = document.getElementById('splitDateTo').value;
-
             const packages = Array.from(document.querySelectorAll('input[name="photoPackage"]:checked')).map(cb => cb.value).join(', ');
 
             let modalHTML = `
@@ -940,18 +914,15 @@
                 </div>
 
                 <div class="space-y-2 border-t border-slate-100 pt-3">
-                    <span class="text-xs text-slate-400 font-semibold block uppercase">Omfang & Klasser</span>
+                    <span class="text-xs text-slate-400 font-semibold block uppercase">Omfang & Spesifiserte Klasser</span>
                     <p><strong>Antall klasser:</strong> ${document.getElementById('classCount').value} | <strong>Antall deltakere:</strong> ${document.getElementById('studentCount').value}</p>
-                    ${selectedClasses.length > 0 ? `<p class="text-xs text-slate-700"><strong>Valgte trinn/klasser:</strong> ${selectedClasses.join(', ')}</p>` : ''}
+                    <p class="text-xs text-slate-700"><strong>Klasser m/ elevtall:</strong> ${classDetailsStr.join(', ')}</p>
                     <p class="text-xs text-slate-700"><strong>Leirskole / Fravær:</strong> ${document.getElementById('campInfo').value}</p>
                 </div>
 
                 <div class="space-y-2 border-t border-slate-100 pt-3">
                     <span class="text-xs text-slate-400 font-semibold block uppercase">Fotopakker & Valg</span>
                     <p><strong>Bestilte produkter:</strong> ${packages || 'Ingen spesifisert'}</p>
-                    ${trinnSpecific.length > 0 ? `<p class="text-xs text-slate-700"><strong>Trinnbilde for:</strong> ${trinnSpecific.join(', ')}</p>` : ''}
-                    ${groupSpecific.length > 0 ? `<p class="text-xs text-slate-700"><strong>Gruppebilder for:</strong> ${groupSpecific.join(', ')}</p>` : ''}
-                    ${portraitSpecific.length > 0 ? `<p class="text-xs text-slate-700"><strong>Portrettbilder for:</strong> ${portraitSpecific.join(', ')}</p>` : ''}
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-slate-100 pt-3 bg-brand-50 p-3 rounded-lg">
