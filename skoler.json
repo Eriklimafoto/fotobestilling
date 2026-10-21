@@ -1,0 +1,247 @@
+[
+    {
+        "name": "Solvang skole",
+        "type": "barneskole",
+        "students": 329,
+        "classesCount": 14,
+        "classesWithCounts": [
+            {
+                "name": "1. trinn",
+                "count": 35
+            },
+            {
+                "name": "2A",
+                "count": 18
+            },
+            {
+                "name": "2B",
+                "count": 18
+            },
+            {
+                "name": "3A",
+                "count": 18
+            },
+            {
+                "name": "3B",
+                "count": 17
+            },
+            {
+                "name": "4A",
+                "count": 18
+            },
+            {
+                "name": "4B",
+                "count": 17
+            },
+            {
+                "name": "5A",
+                "count": 17
+            },
+            {
+                "name": "5B",
+                "count": 17
+            },
+            {
+                "name": "5C",
+                "count": 13
+            },
+            {
+                "name": "6A",
+                "count": 17
+            },
+            {
+                "name": "6B",
+                "count": 18
+            },
+            {
+                "name": "7A",
+                "count": 23
+            },
+            {
+                "name": "7B",
+                "count": 24
+            }
+        ],
+        "history": {
+            "lastYearDates": "30. sep - 1. okt",
+            "days": 2,
+            "photographersPerDay": 2,
+            "photographers": [
+                "Håkon R",
+                "Kine SØst"
+            ]
+        }
+    },
+    {
+        "name": "Vollebekk skole",
+        "type": "barneskole",
+        "students": 811,
+        "classesCount": 32,
+        "classesWithCounts": [
+            {
+                "name": "10A",
+                "count": 28
+            },
+            {
+                "name": "10B",
+                "count": 26
+            },
+            {
+                "name": "10C",
+                "count": 24
+            },
+            {
+                "name": "10D",
+                "count": 24
+            },
+            {
+                "name": "10V+",
+                "count": 9
+            },
+            {
+                "name": "1A",
+                "count": 23
+            },
+            {
+                "name": "1B",
+                "count": 25
+            },
+            {
+                "name": "2A",
+                "count": 27
+            },
+            {
+                "name": "2B",
+                "count": 28
+            },
+            {
+                "name": "3A",
+                "count": 23
+            },
+            {
+                "name": "3B",
+                "count": 23
+            },
+            {
+                "name": "4A",
+                "count": 26
+            },
+            {
+                "name": "4B",
+                "count": 25
+            },
+            {
+                "name": "5A",
+                "count": 25
+            },
+            {
+                "name": "5B",
+                "count": 25
+            },
+            {
+                "name": "5V+",
+                "count": 3
+            },
+            {
+                "name": "6A",
+                "count": 26
+            },
+            {
+                "name": "6B",
+                "count": 23
+            },
+            {
+                "name": "6V+",
+                "count": 2
+            },
+            {
+                "name": "7A",
+                "count": 24
+            },
+            {
+                "name": "7B",
+                "count": 23
+            },
+            {
+                "name": "7V+",
+                "count": 1
+            },
+            {
+                "name": "8 V+",
+                "count": 3
+            },
+            {
+                "name": "8A",
+                "count": 27
+            },
+            {
+                "name": "8B",
+                "count": 28
+            },
+            {
+                "name": "8C",
+                "count": 27
+            },
+            {
+                "name": "8D",
+                "count": 27
+            },
+            {
+                "name": "9A",
+                "count": 28
+            },
+            {
+                "name": "9B",
+                "count": 28
+            },
+            {
+                "name": "9C",
+                "count": 27
+            },
+            {
+                "name": "9D",
+                "count": 25
+            },
+            {
+                "name": "9V+",
+                "count": 5
+            }
+        ],
+        "history": {
+            "lastYearDates": "I fjor: 2 dager i september/oktober",
+            "days": 2,
+            "photographersPerDay": 2,
+            "photographers": [
+                "1-2 fotografer"
+            ]
+        }
+    },
+    {
+        "name": "Skoleoversikt_LimaFoto",
+        "type": "barneskole",
+        "students": 0,
+        "classesCount": 1,
+        "classesWithCounts": [
+            {
+                "name": "1. trinn",
+                "count": 22
+            },
+            {
+                "name": "2A",
+                "count": 20
+            },
+            {
+                "name": "2B",
+                "count": 21
+            }
+        ],
+        "history": {
+            "lastYearDates": "I fjor: 2 dager i september/oktober",
+            "days": 2,
+            "photographersPerDay": 2,
+            "photographers": [
+                "1-2 fotografer"
+            ]
+        }
+    }
+]
